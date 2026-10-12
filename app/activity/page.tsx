@@ -16,8 +16,33 @@ export default function ActivityPage() {
         These audit entries are sample data and are not records of real document activity.
       </Notice>
 
+      <div className="space-y-3 md:hidden">
+        {sampleAuditEvents.map((event) => (
+          <Card key={event.id} className="p-4">
+            <div className="flex items-start justify-between gap-3">
+              <p className="min-w-0 break-words font-medium">{t(asMessageKey(`auditActions.${event.action}`))}</p>
+              <time dateTime={event.at} className="shrink-0 text-right text-xs text-muted">{formatDateTime(event.at)}</time>
+            </div>
+            <dl className="mt-3 grid gap-3 border-t border-border pt-3 text-sm">
+              <div>
+                <dt className="text-xs text-muted">{t("activity.columnActor")}</dt>
+                <dd className="mt-0.5 break-words">{event.actorLabel}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-muted">{t("activity.columnDocument")}</dt>
+                <dd className="mt-0.5 break-words">{event.documentTitle || "—"}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-muted">{t("activity.columnIp")}</dt>
+                <dd className="mt-0.5 break-all text-muted">{event.ip || "—"}</dd>
+              </div>
+            </dl>
+          </Card>
+        ))}
+      </div>
+
       <Card className="overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="hidden overflow-x-auto md:block">
           <table className="min-w-full text-left text-sm">
             <thead className="border-b border-border bg-surface-muted text-muted">
               <tr>

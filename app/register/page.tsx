@@ -6,10 +6,11 @@ import { AuthPage } from "@/components/auth-page";
 import { Notice } from "@/components/ui/notice";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/form";
-import { firebaseAuthMessage } from "@/lib/firebase/client-session";
-import { firebaseAuthRequest, isFirebaseClientConfigured } from "@/lib/firebase/client";
+import { createSupabaseBrowserClient, isSupabaseClientConfigured } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,32 +32,34 @@ export default function RegisterPage() {
     }
     setSubmitting(true);
     try {
-      const user = await firebaseAuthRequest("signUp", {
+      const callback = new URL("/auth/callback", window.location.origin);
+      callback.searchParams.set("next", "/login?confirmed=1");
+      const { data, error: signUpError } = await createSupabaseBrowserClient().auth.signUp({
         email: email.trim(),
         password,
-        returnSecureToken: true,
+        options: {
+          data: { full_name: name.trim() },
+          emailRedirectTo: callback.toString(),
+        },
       });
-      const updatedUser = await firebaseAuthRequest("update", {
-        idToken: user.idToken,
-        displayName: name.trim(),
-        returnSecureToken: true,
-      });
-      await firebaseAuthRequest("sendOobCode", {
-        requestType: "VERIFY_EMAIL",
-        idToken: updatedUser.idToken,
-      });
+      if (signUpError) throw signUpError;
+      if (data.session) {
+        router.replace("/onboarding");
+        router.refresh();
+        return;
+      }
       setComplete(true);
     } catch (cause) {
-      setError(firebaseAuthMessage(cause));
+      setError(cause instanceof Error ? cause.message : "Unable to create your account.");
       setSubmitting(false);
     }
   }
 
   return (
     <AuthPage title="Create your account" subtitle="Use a verified email address to create an organization workspace.">
-      {!isFirebaseClientConfigured ? (
-        <Notice tone="warning" title="Firebase is not configured">
-          Add your Firebase Web app settings to <code>.env.local</code> before creating accounts.
+      {!isSupabaseClientConfigured ? (
+        <Notice tone="warning" title="Supabase is not configured">
+          Add <code>NEXT_PUBLIC_SUPABASE_URL</code> and <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> to <code>.env.local</code> before creating accounts.
         </Notice>
       ) : complete ? (
         <>

@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { AuthPage } from "@/components/auth-page";
-import { FirebaseAuthGuard } from "@/components/firebase-auth-guard";
+import { SupabaseAuthGuard } from "@/components/supabase-auth-guard";
 import { Notice } from "@/components/ui/notice";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/form";
@@ -41,7 +41,7 @@ export default function OnboardingPage() {
   }
 
   return (
-    <FirebaseAuthGuard>
+    <SupabaseAuthGuard>
       <AuthPage title="Create your organization" subtitle="Set up the workspace that will own your documents and templates.">
         {error && <Notice tone="danger" className="mb-4">{error}</Notice>}
         <form onSubmit={submit} className="space-y-4">
@@ -51,6 +51,6 @@ export default function OnboardingPage() {
           <Button type="submit" variant="primary" disabled={submitting} className="w-full">{submitting ? "Creating…" : "Create organization"}</Button>
         </form>
       </AuthPage>
-    </FirebaseAuthGuard>
+    </SupabaseAuthGuard>
   );
 }

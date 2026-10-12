@@ -4,15 +4,15 @@ import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Notice } from "@/components/ui/notice";
 import { t } from "@/lib/i18n";
-import { isFirebaseClientConfigured } from "@/lib/firebase/client";
+import { isSupabaseClientConfigured } from "@/lib/supabase/client";
 
 /** Site-wide banner shown while the UI runs without a backend. */
 export function PreviewBanner() {
   return (
     <div className="border-b border-warning/30 bg-warning-soft px-4 py-2 text-center text-xs font-medium text-warning sm:text-sm">
-      {isFirebaseClientConfigured
-        ? "Firebase accounts and document drafts are enabled. Email delivery, recipient signing, and finalization are not enabled."
-        : "Local browser workspace only — initial records are samples; new PDFs stay in this browser. Email delivery, cloud sync, and signing are not enabled."}
+      {isSupabaseClientConfigured
+        ? "Supabase authentication is enabled. Document data, PDF storage, email delivery, recipient signing, and finalization are being migrated."
+        : "Supabase is not configured. Document data, PDF storage, email delivery, recipient signing, and finalization are unavailable."}
     </div>
   );
 }

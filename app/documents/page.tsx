@@ -77,7 +77,7 @@ export default function DocumentsPage() {
                   type="button"
                   aria-pressed={status === item}
                   onClick={() => setStatus(item)}
-                  className={`rounded-full border px-2.5 py-1 transition-colors ${
+                  className={`min-h-10 rounded-full border px-3 py-2 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
                     status === item ? "border-accent bg-accent-soft text-accent" : "border-border hover:bg-surface-muted"
                   }`}
                 >

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type MouseEvent, type PointerEvent } from "react";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import { AppShell } from "@/components/app-shell";
 import { useLocalWorkspace } from "@/components/local-workspace";
@@ -366,7 +366,7 @@ function DocumentFieldsEditor({
     addField(x, y);
   }
 
-  function moveField(event: MouseEvent<HTMLButtonElement>) {
+  function moveField(event: PointerEvent<HTMLButtonElement>) {
     const drag = dragRef.current;
     if (!drag) return;
     const pageBounds = event.currentTarget.parentElement?.getBoundingClientRect();

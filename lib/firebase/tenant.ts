@@ -1,7 +1,6 @@
-import type { DecodedIdToken } from "firebase-admin/auth";
 import { getFirebaseAdmin } from "@/lib/firebase/admin";
 
-export async function requireOrganizationMember(user: DecodedIdToken, organizationId: string) {
+export async function requireOrganizationMember(user: { uid: string }, organizationId: string) {
   const { firestore } = getFirebaseAdmin();
   const membership = await firestore
     .collection("organizations")

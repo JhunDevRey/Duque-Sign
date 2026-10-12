@@ -1,18 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState, type FormEvent } from "react";
 import { AuthPage } from "@/components/auth-page";
 import { Notice } from "@/components/ui/notice";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/form";
-import { firebaseAuthMessage, establishServerSession, getPostLoginPath } from "@/lib/firebase/client-session";
-import {
-  firebaseAuthRequest,
-  isFirebaseClientConfigured,
-} from "@/lib/firebase/client";
+import { createSupabaseBrowserClient, isSupabaseClientConfigured } from "@/lib/supabase/client";
+
+function InvalidConfirmationNotice() {
+  const searchParams = useSearchParams();
+  if (searchParams.get("auth_error") !== "confirmation") return null;
+  return (
+    <Notice tone="warning" title="That confirmation link didn't work" className="mb-4">
+      It may have expired or already been used, or it was opened in a different browser from the one where you
+      registered. If you already confirmed your email, sign in below. Otherwise, register again with the same email
+      to get a new link.
+    </Notice>
+  );
+}
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -23,21 +33,18 @@ export default function LoginPage() {
     event.preventDefault();
     setError(null);
     setSubmitting(true);
-    setProgress("Checking your account with Firebase…");
+    setProgress("Checking your account…");
     try {
-      const user = await firebaseAuthRequest("signInWithPassword", {
+      const { error: signInError } = await createSupabaseBrowserClient().auth.signInWithPassword({
         email: email.trim(),
         password,
-        returnSecureToken: true,
       });
-      setProgress("Creating your secure session…");
-      await establishServerSession(user.idToken);
-      setProgress("Loading your organization…");
-      const destination = await getPostLoginPath();
+      if (signInError) throw signInError;
       setProgress("Opening your workspace…");
-      window.location.assign(destination);
+      router.replace("/dashboard");
+      router.refresh();
     } catch (cause) {
-      setError(firebaseAuthMessage(cause));
+      setError(cause instanceof Error ? cause.message : "Unable to sign in.");
       setSubmitting(false);
       setProgress(null);
     }
@@ -45,15 +52,15 @@ export default function LoginPage() {
 
   return (
     <AuthPage title="Sign in" subtitle="Sign in to manage your organization's document workspace.">
-      {!isFirebaseClientConfigured ? (
+      {!isSupabaseClientConfigured ? (
         <>
-          <Notice tone="warning" title="Firebase is not configured">
-            Add your Firebase Web app settings to <code>.env.local</code> to enable accounts. Local browser preview remains available.
+          <Notice tone="warning" title="Supabase is not configured">
+            Add <code>NEXT_PUBLIC_SUPABASE_URL</code> and <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> to <code>.env.local</code> to enable accounts.
           </Notice>
-          <Link href="/dashboard" className="mt-5 inline-flex text-sm text-accent hover:underline">Continue to local workspace</Link>
         </>
       ) : (
         <>
+          <Suspense fallback={null}><InvalidConfirmationNotice /></Suspense>
           {error && <Notice tone="danger" className="mb-4">{error}</Notice>}
           {progress && (
             <Notice tone="accent" className="mb-4">
