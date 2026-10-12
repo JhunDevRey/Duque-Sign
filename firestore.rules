@@ -1,0 +1,10 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Application data is accessed through authorized server routes using the Admin SDK.
+    // Admin SDK calls bypass these rules; server-side tenant checks remain mandatory.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

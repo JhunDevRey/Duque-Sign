@@ -1,26 +1,73 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --background: #f6f7f9;
+  --surface: #ffffff;
+  --surface-muted: #f1f3f6;
+  --border: #e2e5ea;
+  --foreground: #16181d;
+  --muted: #5d6470;
+  --accent: #2f5bea;
+  --accent-foreground: #ffffff;
+  --accent-soft: #e8eefe;
+  --danger: #c4312b;
+  --danger-soft: #fdecea;
+  --success: #1c7c4a;
+  --success-soft: #e5f5ec;
+  --warning: #9a6200;
+  --warning-soft: #fff4dc;
+  --page-shadow: 0 1px 3px rgb(16 24 40 / 0.12), 0 1px 2px rgb(16 24 40 / 0.06);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0f1115;
+    --surface: #171a20;
+    --surface-muted: #1e2229;
+    --border: #2b3039;
+    --foreground: #e9ebef;
+    --muted: #9aa2ae;
+    --accent: #6b8cff;
+    --accent-foreground: #0b0d12;
+    --accent-soft: #1d2747;
+    --danger: #ff7b72;
+    --danger-soft: #3a1d1c;
+    --success: #5fd197;
+    --success-soft: #16301f;
+    --warning: #f0b84a;
+    --warning-soft: #33280f;
+    --page-shadow: 0 1px 3px rgb(0 0 0 / 0.5);
   }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-script: var(--font-script);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* PDF pages are always rendered on white, regardless of theme. */
+.pdf-page {
+  background: #ffffff;
+  box-shadow: var(--page-shadow);
 }
