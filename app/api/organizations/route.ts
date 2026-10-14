@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -77,38 +76,16 @@ export async function POST(request: Request) {
       return errorResponse("Organization name must be 2–120 characters.", 400);
     }
 
-    const { data: membership, error: membershipError } = await supabase
-      .from("organization_members")
-      .select("organization_id")
-      .eq("user_id", authData.user.id)
-      .limit(1)
-      .maybeSingle();
-    if (membershipError) throw membershipError;
-    if (membership) return errorResponse("You already belong to an organization.", 409);
-
-    const admin = createSupabaseAdminClient();
-    const { data: organization, error: createOrganizationError } = await admin
-      .from("organizations")
-      .insert({ name: name.trim(), created_by: authData.user.id })
-      .select("id, name")
+    // Creates the organization and owner membership atomically (supabase/migrations/003_create_organization.sql).
+    const { data: created, error: createError } = await supabase
+      .rpc("create_organization", { p_name: name.trim() })
       .single();
-    if (createOrganizationError) throw createOrganizationError;
-
-    const { error: membershipInsertError } = await admin
-      .from("organization_members")
-      .insert({
-        organization_id: organization.id,
-        user_id: authData.user.id,
-        role: "owner",
-      });
-    if (membershipInsertError) {
-      const { error: rollbackError } = await admin.from("organizations").delete().eq("id", organization.id);
-      if (rollbackError) console.error("Failed to clean up incomplete organization creation", rollbackError);
-      throw membershipInsertError;
-    }
+    if (createError?.code === "23505") return errorResponse("You already belong to an organization.", 409);
+    if (createError?.code === "22023") return errorResponse("Organization name must be 2–120 characters.", 400);
+    if (createError) throw createError;
 
     return NextResponse.json({
-      organization: { id: organization.id, name: organization.name, role: "owner" },
+      organization: { id: created.id, name: created.name, role: created.role },
     }, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch (cause) {
     console.error("Organization creation failed", cause);

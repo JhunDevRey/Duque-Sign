@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
+import { authLinkErrorPath, safeNextPath } from "@/lib/auth/redirect";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-function safeNextPath(value: string | null): string {
-  if (!value || !value.startsWith("/") || value.startsWith("//")) return "/dashboard";
-  return value;
-}
-
+// PKCE code flow: only works in the browser that started sign-up or the reset request.
+// Email templates should link to /auth/confirm instead, which works in any browser.
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
@@ -15,8 +13,5 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) return NextResponse.redirect(new URL(next, url.origin));
   }
-  if (next === "/reset-password") {
-    return NextResponse.redirect(new URL("/forgot-password?error=link_invalid", url.origin));
-  }
-  return NextResponse.redirect(new URL("/login?auth_error=confirmation", url.origin));
+  return NextResponse.redirect(new URL(authLinkErrorPath(next), url.origin));
 }
