@@ -11,7 +11,7 @@ import { Card } from "@/components/ui/card";
 import { Field as FormField, Input, Select } from "@/components/ui/form";
 import { Notice } from "@/components/ui/notice";
 import { PageHeader } from "@/components/ui/page-header";
-import { isFirebaseClientConfigured } from "@/lib/firebase/client";
+import { isSupabaseClientConfigured } from "@/lib/supabase/client";
 import { FIELD_TYPES, type DocumentSummary, type Field, type FieldType } from "@/lib/domain/types";
 import { readOriginalPdf } from "@/lib/preview/local-workspace";
 import { SAMPLE_PDF_URL } from "@/lib/preview/sample-data";
@@ -99,7 +99,6 @@ function DocumentFieldsEditor({
 }) {
   const documentId = document.id;
   const originalFileName = document.originalFileName;
-  const originalPdfStorage = document.originalPdfStorage;
   const [pdf, setPdf] = useState<PDFDocumentProxy | null>(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState({ width: 0, height: 0 });
@@ -140,17 +139,13 @@ function DocumentFieldsEditor({
           const response = await fetch(SAMPLE_PDF_URL);
           if (!response.ok) throw new Error("Unable to load the sample PDF.");
           bytes = await response.arrayBuffer();
-        } else if (originalPdfStorage === "browser") {
-          const blob = await readOriginalPdf(documentId);
-          if (!blob) throw new Error("This draft's PDF is only available in the browser and device where it was uploaded.");
-          bytes = await blob.arrayBuffer();
-        } else if (isFirebaseClientConfigured) {
+        } else if (isSupabaseClientConfigured) {
           if (!organizationId) throw new Error("No organization is selected.");
           const response = await fetch(
             `/api/documents/${encodeURIComponent(documentId)}/file?organizationId=${encodeURIComponent(organizationId)}`,
             { cache: "no-store" },
           );
-          if (!response.ok) throw new Error("Unable to load the original PDF. Confirm Cloud Storage is configured.");
+          if (!response.ok) throw new Error("Unable to load the original PDF.");
           bytes = await response.arrayBuffer();
         } else {
           const blob = await readOriginalPdf(documentId);
@@ -179,7 +174,7 @@ function DocumentFieldsEditor({
       cancelled = true;
       if (destroyLoadingTask) void destroyLoadingTask();
     };
-  }, [documentId, originalFileName, originalPdfStorage, organizationId]);
+  }, [documentId, originalFileName, organizationId]);
 
   useEffect(() => {
     if (!pdf) return;
@@ -226,7 +221,7 @@ function DocumentFieldsEditor({
     }
     const size = FIELD_SIZES[type];
     const field: Field = {
-      id: `fld_${crypto.randomUUID()}`,
+      id: crypto.randomUUID(),
       type,
       recipientId,
       page: pageNumber,
@@ -296,7 +291,7 @@ function DocumentFieldsEditor({
           const recipient = document.recipients.find((entry) => entry.role.toLocaleLowerCase() === match.role.toLocaleLowerCase());
           if (!recipient) throw new Error("Anchor recipient changed while scanning.");
           return {
-            id: `fld_${crypto.randomUUID()}`,
+            id: crypto.randomUUID(),
             type: match.type,
             recipientId: recipient.id,
             page: match.page,
@@ -332,7 +327,7 @@ function DocumentFieldsEditor({
     setError(null);
     setNotice(null);
     try {
-      if (isFirebaseClientConfigured) {
+      if (isSupabaseClientConfigured) {
         if (!organizationId) throw new Error("No organization is selected.");
         const response = await fetch(`/api/documents/${encodeURIComponent(document.id)}/fields`, {
           method: "PUT",
@@ -390,13 +385,6 @@ function DocumentFieldsEditor({
       </div>
       {error && <Notice tone="danger" className="mb-4">{error}</Notice>}
       {notice && <Notice tone="success" className="mb-4">{notice}</Notice>}
-      {document.originalPdfStorage === "browser" && (
-        <Notice tone="warning" className="mb-4">{t("editor.localPdfNotice")}</Notice>
-      )}
-      {isFirebaseClientConfigured && document.originalPdfStorage !== "browser" && (
-        <Notice tone="warning" className="mb-4">{t("editor.storageBillingNotice")}</Notice>
-      )}
-
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem]">
         <Card className="min-w-0 p-3 sm:p-5">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">

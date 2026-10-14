@@ -8,7 +8,7 @@ import {
   saveLocalWorkspace,
 } from "@/lib/preview/local-workspace";
 import { sampleDocuments } from "@/lib/preview/sample-data";
-import { isFirebaseClientConfigured } from "@/lib/firebase/client";
+import { isSupabaseClientConfigured } from "@/lib/supabase/client";
 
 type WorkspaceSnapshot = {
   documents: DocumentSummary[];
@@ -59,7 +59,7 @@ function getServerSnapshot() {
 }
 
 function persistDocuments(documents: DocumentSummary[]) {
-  if (isFirebaseClientConfigured) throw new Error("Cloud documents must be changed through the authenticated API.");
+  if (isSupabaseClientConfigured) throw new Error("Cloud documents must be changed through the authenticated API.");
   try {
     saveLocalWorkspace({ documents });
     publish({ documents, organizationId: null, ready: true, error: null });
@@ -92,7 +92,7 @@ function clearWorkspace() {
 }
 
 export async function refreshWorkspace(): Promise<void> {
-  if (!isFirebaseClientConfigured) {
+  if (!isSupabaseClientConfigured) {
     try {
       const stored = loadLocalWorkspace();
       publish({
@@ -137,7 +137,7 @@ export async function refreshWorkspace(): Promise<void> {
       `/api/documents?organizationId=${encodeURIComponent(organizationId)}`,
       { cache: "no-store" },
     );
-    if (!documentResponse.ok) throw new Error("Unable to load documents from Firebase.");
+    if (!documentResponse.ok) throw new Error("Unable to load documents.");
     const documentData: unknown = await documentResponse.json();
     const documents =
       typeof documentData === "object" &&
@@ -151,7 +151,7 @@ export async function refreshWorkspace(): Promise<void> {
     publish({
       ...snapshot,
       ready: true,
-      error: cause instanceof Error ? cause.message : "Unable to load the Firebase workspace.",
+      error: cause instanceof Error ? cause.message : "Unable to load the workspace.",
     });
   }
 }

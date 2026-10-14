@@ -56,7 +56,6 @@ export type DocumentSummary = {
   status: DocumentStatus;
   externalId?: string;
   originalFileName?: string;
-  originalPdfStorage?: "cloud" | "browser";
   version: number;
   pageCount: number;
   createdBy: string;

@@ -15,7 +15,7 @@ import { formatDateTime } from "@/lib/format";
 import { t } from "@/lib/i18n";
 import { readOriginalPdf } from "@/lib/preview/local-workspace";
 import { SAMPLE_PDF_URL } from "@/lib/preview/sample-data";
-import { isFirebaseClientConfigured } from "@/lib/firebase/client";
+import { isSupabaseClientConfigured } from "@/lib/supabase/client";
 
 export default function DocumentDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -36,10 +36,7 @@ export default function DocumentDetailPage() {
           return;
         }
         let blob: Blob | null;
-        if (document.originalPdfStorage === "browser") {
-          blob = await readOriginalPdf(document.id);
-          if (!blob) throw new Error("This draft's PDF is only available in the browser and device where it was uploaded.");
-        } else if (isFirebaseClientConfigured) {
+        if (isSupabaseClientConfigured) {
           if (!organizationId) throw new Error("No organization is selected for this workspace.");
           const response = await fetch(
             `/api/documents/${encodeURIComponent(document.id)}/file?organizationId=${encodeURIComponent(organizationId)}`,
@@ -81,7 +78,7 @@ export default function DocumentDetailPage() {
   async function cancelDocument() {
     if (!window.confirm("Cancel this document? This action cannot be reversed.")) return;
     try {
-      if (isFirebaseClientConfigured) {
+      if (isSupabaseClientConfigured) {
         if (!organizationId) throw new Error("No organization is selected for this workspace.");
         const response = await fetch(`/api/documents/${encodeURIComponent(documentId)}`, {
           method: "PATCH",
@@ -193,9 +190,6 @@ export default function DocumentDetailPage() {
 
           <Card className="p-4">
             <div className="mb-3 text-sm font-semibold">{t("documents.previewDocument")}</div>
-            {document.originalPdfStorage === "browser" && (
-              <Notice tone="warning" className="mb-3">{t("documents.localPdfNotice")}</Notice>
-            )}
             {pdfError ? (
               <Notice tone="danger">{pdfError}</Notice>
             ) : pdfUrl ? (

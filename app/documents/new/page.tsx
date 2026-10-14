@@ -13,10 +13,10 @@ import { PageHeader } from "@/components/ui/page-header";
 import { MAX_UPLOAD_BYTES, MAX_UPLOAD_PAGES } from "@/lib/config/app";
 import { formatBytes } from "@/lib/format";
 import type { Delivery, DocumentSummary, Recipient } from "@/lib/domain/types";
-import { removeOriginalPdf, storeOriginalPdf } from "@/lib/preview/local-workspace";
+import { storeOriginalPdf } from "@/lib/preview/local-workspace";
 import { sampleViewer } from "@/lib/preview/sample-data";
 import { t } from "@/lib/i18n";
-import { isFirebaseClientConfigured } from "@/lib/firebase/client";
+import { isSupabaseClientConfigured } from "@/lib/supabase/client";
 
 type RecipientDraft = {
   name: string;
@@ -71,7 +71,6 @@ export default function NewDocumentPage() {
     }
 
     setSaving(true);
-    let localPdfId: string | null = null;
     try {
       const bytes = await file.arrayBuffer();
       if (new TextDecoder().decode(bytes.slice(0, 5)) !== "%PDF-") {
@@ -82,6 +81,31 @@ export default function NewDocumentPage() {
       if (pageCount < 1) throw new Error(t("newDocument.errorMalformed"));
       if (pageCount > MAX_UPLOAD_PAGES) {
         throw new Error(t("newDocument.errorPages", { pages: MAX_UPLOAD_PAGES }));
+      }
+
+      if (isSupabaseClientConfigured) {
+        if (!organizationId) throw new Error("Create an organization before saving documents.");
+        const form = new FormData();
+        form.set("organizationId", organizationId);
+        form.set("title", title.trim());
+        form.set("externalId", externalId.trim());
+        form.set("recipients", JSON.stringify(recipients));
+        form.set("file", file);
+        const response = await fetch("/api/documents", { method: "POST", body: form });
+        const result: unknown = await response.json();
+        if (!response.ok) {
+          const message =
+            typeof result === "object" && result !== null && "error" in result && typeof result.error === "string"
+              ? result.error
+              : "Unable to save the document.";
+          throw new Error(message);
+        }
+        if (typeof result !== "object" || result === null || !("document" in result) || typeof result.document !== "object" || result.document === null || !("id" in result.document) || typeof result.document.id !== "string") {
+          throw new Error("The server response did not include the saved document ID.");
+        }
+        await refresh();
+        router.push(`/documents/${result.document.id}`);
+        return;
       }
 
       const id = `doc_${crypto.randomUUID()}`;
@@ -101,7 +125,6 @@ export default function NewDocumentPage() {
         status: "draft",
         externalId: externalId.trim() || undefined,
         originalFileName: file.name,
-        originalPdfStorage: isFirebaseClientConfigured ? "browser" : undefined,
         version: 1,
         pageCount,
         createdBy: sampleViewer.name,
@@ -109,47 +132,10 @@ export default function NewDocumentPage() {
         updatedAt: now,
         recipients: savedRecipients,
       };
-
-      if (isFirebaseClientConfigured) {
-        if (!organizationId) throw new Error("Create an organization before saving documents.");
-        await storeOriginalPdf(id, file);
-        localPdfId = id;
-        const form = new FormData();
-        form.set("organizationId", organizationId);
-        form.set("documentId", id);
-        form.set("pdfStorage", "browser");
-        form.set("title", document.title);
-        form.set("externalId", document.externalId ?? "");
-        form.set("recipients", JSON.stringify(recipients));
-        form.set("file", file);
-        const response = await fetch("/api/documents", { method: "POST", body: form });
-        const result: unknown = await response.json();
-        if (!response.ok) {
-          const message =
-            typeof result === "object" && result !== null && "error" in result && typeof result.error === "string"
-              ? result.error
-              : "Unable to save the document.";
-          throw new Error(message);
-        }
-        if (typeof result !== "object" || result === null || !("document" in result) || typeof result.document !== "object" || result.document === null || !("id" in result.document) || typeof result.document.id !== "string") {
-          throw new Error("The server response did not include the saved document ID.");
-        }
-        localPdfId = null;
-        await refresh();
-        router.push(`/documents/${result.document.id}`);
-        return;
-      }
       await storeOriginalPdf(id, file);
       createDraft(document);
       router.push(`/documents/${id}`);
     } catch (cause) {
-      if (localPdfId) {
-        try {
-          await removeOriginalPdf(localPdfId);
-        } catch (cleanupError) {
-          console.error("Failed to remove the unsaved local PDF", cleanupError);
-        }
-      }
       setError(cause instanceof Error ? cause.message : "Unable to validate and save this PDF.");
       setSaving(false);
     }
@@ -157,15 +143,12 @@ export default function NewDocumentPage() {
 
   return (
     <AppShell>
-      <PageHeader title={t("newDocument.title")} subtitle={isFirebaseClientConfigured ? t("newDocument.firebaseSubtitle") : t("newDocument.localSubtitle")} />
+      <PageHeader title={t("newDocument.title")} subtitle={isSupabaseClientConfigured ? t("newDocument.cloudSubtitle") : t("newDocument.localSubtitle")} />
       <div className="mb-5">
         <ButtonLink href="/documents" variant="ghost" size="sm">← {t("common.back")}</ButtonLink>
       </div>
       <form onSubmit={submit} className="mx-auto max-w-3xl space-y-5">
         {error && <Notice tone="danger" title="Unable to save draft">{error}</Notice>}
-        {isFirebaseClientConfigured && (
-          <Notice tone="warning" title={t("documents.localPdfTitle")}>{t("newDocument.localPdfNotice")}</Notice>
-        )}
         {!ready && <Notice>{t("common.loading")}</Notice>}
 
         <Card className="space-y-4 p-4 sm:p-6">

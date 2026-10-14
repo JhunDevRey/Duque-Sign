@@ -1,4 +1,4 @@
-// Schema snapshot based on supabase/migrations/001_init.sql.
+// Schema snapshot based on supabase/migrations/001_init.sql through 003_create_organization.sql.
 // Regenerate from the live project with `supabase gen types typescript --project-id <project-ref> --schema public`.
 export type Json =
   | string
@@ -55,6 +55,7 @@ export type Database = {
           expires_at: string | null;
           completed_at: string | null;
           original_pdf_path: string | null;
+          original_file_name: string | null;
           final_pdf_path: string | null;
           final_pdf_sha256: string | null;
           page_count: number;
@@ -71,6 +72,7 @@ export type Database = {
           expires_at?: string | null;
           completed_at?: string | null;
           original_pdf_path?: string | null;
+          original_file_name?: string | null;
           final_pdf_path?: string | null;
           final_pdf_sha256?: string | null;
           page_count: number;
@@ -86,6 +88,7 @@ export type Database = {
           expires_at?: string | null;
           completed_at?: string | null;
           original_pdf_path?: string | null;
+          original_file_name?: string | null;
           final_pdf_path?: string | null;
           final_pdf_sha256?: string | null;
           page_count?: number;
@@ -244,10 +247,29 @@ export type Database = {
     Views: Record<string, never>;
     Functions: {
       can_view_profile: { Args: { target_user_id: string }; Returns: boolean };
+      cancel_document: { Args: { p_document_id: string }; Returns: undefined };
+      create_organization: {
+        Args: { p_name: string };
+        Returns: { id: string; name: string; role: Database["public"]["Enums"]["organization_member_role"] }[];
+      };
+      create_draft_document: {
+        Args: {
+          p_document_id: string;
+          p_organization_id: string;
+          p_title: string;
+          p_external_id: string | null;
+          p_original_file_name: string;
+          p_original_pdf_path: string;
+          p_page_count: number;
+          p_recipients: Json;
+        };
+        Returns: Database["public"]["Tables"]["recipients"]["Row"][];
+      };
       is_organization_admin: { Args: { target_organization_id: string }; Returns: boolean };
       is_organization_admin_for_storage: { Args: { object_name: string }; Returns: boolean };
       is_organization_member: { Args: { target_organization_id: string }; Returns: boolean };
       is_organization_member_for_storage: { Args: { object_name: string }; Returns: boolean };
+      replace_document_fields: { Args: { p_document_id: string; p_fields: Json }; Returns: number };
     };
     Enums: {
       document_status: "draft" | "sent" | "in_progress" | "completed" | "declined" | "cancelled" | "expired";
