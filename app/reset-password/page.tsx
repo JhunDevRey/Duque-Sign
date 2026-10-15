@@ -49,12 +49,12 @@ export default function ResetPasswordPage() {
         <Field label="Confirm password" htmlFor="confirmation">
           <Input id="confirmation" type="password" autoComplete="new-password" minLength={12} required value={confirmation} onChange={(event) => setConfirmation(event.target.value)} />
         </Field>
-        <Button type="submit" variant="primary" disabled={submitting} className="w-full">
+        <Button type="submit" variant="primary" size="lg" disabled={submitting} className="w-full">
           {submitting ? "Updating…" : "Set password"}
         </Button>
       </form>
       <p className="mt-5 text-center text-sm">
-        <Link href="/login" className="text-accent hover:underline">Back to sign in</Link>
+        <Link href="/login" className="font-medium text-accent underline-offset-4 hover:underline">Back to sign in</Link>
       </p>
     </AuthPage>
   );

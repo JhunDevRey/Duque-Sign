@@ -1,4 +1,4 @@
-// Schema snapshot based on supabase/migrations/001_init.sql through 003_create_organization.sql.
+// Schema snapshot based on supabase/migrations/001_init.sql through 005_recipient_signing.sql.
 // Regenerate from the live project with `supabase gen types typescript --project-id <project-ref> --schema public`.
 export type Json =
   | string
@@ -136,6 +136,9 @@ export type Database = {
           status: Database["public"]["Enums"]["recipient_status"];
           signing_token_hash: string | null;
           signed_at: string | null;
+          viewed_at: string | null;
+          declined_at: string | null;
+          decline_reason: string | null;
           created_at: string;
           updated_at: string;
         },
@@ -151,6 +154,9 @@ export type Database = {
           status?: Database["public"]["Enums"]["recipient_status"];
           signing_token_hash?: string | null;
           signed_at?: string | null;
+          viewed_at?: string | null;
+          declined_at?: string | null;
+          decline_reason?: string | null;
           created_at?: string;
           updated_at?: string;
         },
@@ -214,6 +220,11 @@ export type Database = {
           updated_at?: string;
         }
       >;
+      field_values: TableDefinition<
+        { field_id: string; organization_id: string; document_id: string; recipient_id: string; value: string; created_at: string },
+        never,
+        never
+      >;
       audit_events: TableDefinition<
         {
           id: string;
@@ -270,6 +281,29 @@ export type Database = {
       is_organization_member: { Args: { target_organization_id: string }; Returns: boolean };
       is_organization_member_for_storage: { Args: { object_name: string }; Returns: boolean };
       replace_document_fields: { Args: { p_document_id: string; p_fields: Json }; Returns: number };
+      reissue_signing_link: {
+        Args: { p_document_id: string; p_recipient_id: string; p_token_hash: string };
+        Returns: undefined;
+      };
+      open_signing_session: { Args: { p_token_hash: string; p_ip: string; p_user_agent: string }; Returns: Json };
+      submit_signature: {
+        Args: { p_token_hash: string; p_values: Json; p_consent: boolean; p_ip: string; p_user_agent: string };
+        Returns: Json;
+      };
+      decline_signing: {
+        Args: { p_token_hash: string; p_reason: string; p_ip: string; p_user_agent: string };
+        Returns: undefined;
+      };
+      finalization_payload: { Args: { p_document_id: string }; Returns: Json };
+      finalize_document: { Args: { p_document_id: string; p_final_pdf_path: string; p_sha256: string }; Returns: undefined };
+      send_document: {
+        Args: { p_document_id: string; p_token_hashes: Json; p_expires_in_days: number };
+        Returns: {
+          recipient_id: string;
+          status: Database["public"]["Enums"]["recipient_status"];
+          expires_at: string;
+        }[];
+      };
     };
     Enums: {
       document_status: "draft" | "sent" | "in_progress" | "completed" | "declined" | "cancelled" | "expired";

@@ -23,7 +23,7 @@ export default function ActivityPage() {
               <p className="min-w-0 break-words font-medium">{t(asMessageKey(`auditActions.${event.action}`))}</p>
               <time dateTime={event.at} className="shrink-0 text-right text-xs text-muted">{formatDateTime(event.at)}</time>
             </div>
-            <dl className="mt-3 grid gap-3 border-t border-border pt-3 text-sm">
+            <dl className="mt-3 grid gap-3 border-t border-border/60 pt-3 text-sm">
               <div>
                 <dt className="text-xs text-muted">{t("activity.columnActor")}</dt>
                 <dd className="mt-0.5 break-words">{event.actorLabel}</dd>
@@ -44,23 +44,23 @@ export default function ActivityPage() {
       <Card className="overflow-hidden">
         <div className="hidden overflow-x-auto md:block">
           <table className="min-w-full text-left text-sm">
-            <thead className="border-b border-border bg-surface-muted text-muted">
+            <thead className="border-b border-border/70 text-xs text-muted">
               <tr>
-                <th className="px-4 py-3 font-medium">{t("activity.columnTime")}</th>
-                <th className="px-4 py-3 font-medium">{t("activity.columnActor")}</th>
-                <th className="px-4 py-3 font-medium">{t("activity.columnAction")}</th>
-                <th className="px-4 py-3 font-medium">{t("activity.columnDocument")}</th>
-                <th className="px-4 py-3 font-medium">{t("activity.columnIp")}</th>
+                <th className="px-6 py-3 font-medium">{t("activity.columnTime")}</th>
+                <th className="px-6 py-3 font-medium">{t("activity.columnActor")}</th>
+                <th className="px-6 py-3 font-medium">{t("activity.columnAction")}</th>
+                <th className="px-6 py-3 font-medium">{t("activity.columnDocument")}</th>
+                <th className="px-6 py-3 font-medium">{t("activity.columnIp")}</th>
               </tr>
             </thead>
             <tbody>
               {sampleAuditEvents.map((event) => (
-                <tr key={event.id} className="border-b border-border last:border-0">
-                  <td className="px-4 py-3">{formatDateTime(event.at)}</td>
-                  <td className="px-4 py-3">{event.actorLabel}</td>
-                  <td className="px-4 py-3">{t(asMessageKey(`auditActions.${event.action}`))}</td>
-                  <td className="px-4 py-3">{event.documentTitle || "—"}</td>
-                  <td className="px-4 py-3 text-muted">{event.ip || "—"}</td>
+                <tr key={event.id} className="border-b border-border/50 transition-colors last:border-0 hover:bg-surface-muted">
+                  <td className="px-6 py-3.5">{formatDateTime(event.at)}</td>
+                  <td className="px-6 py-3.5">{event.actorLabel}</td>
+                  <td className="px-6 py-3.5">{t(asMessageKey(`auditActions.${event.action}`))}</td>
+                  <td className="px-6 py-3.5">{event.documentTitle || "—"}</td>
+                  <td className="px-6 py-3.5 text-muted">{event.ip || "—"}</td>
                 </tr>
               ))}
             </tbody>

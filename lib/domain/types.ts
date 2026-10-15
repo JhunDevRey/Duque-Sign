@@ -3,6 +3,7 @@
 
 export const DOCUMENT_STATUSES = [
   "draft",
+  "sent",
   "in_progress",
   "completed",
   "declined",
@@ -48,6 +49,16 @@ export type Field = {
   required: boolean;
   label?: string;
   source: "manual" | "anchor";
+};
+
+/** A recipient's signing link. The URL is only available when it is issued. */
+export type SigningLink = {
+  recipientId: string;
+  name: string;
+  email: string;
+  delivery: Delivery;
+  status: RecipientStatus;
+  url: string;
 };
 
 export type DocumentSummary = {

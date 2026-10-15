@@ -2,7 +2,7 @@ import "server-only";
 
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
-import type { DocumentStatus, DocumentSummary, Field, FieldType, Recipient } from "@/lib/domain/types";
+import type { DocumentSummary, Field, FieldType, Recipient } from "@/lib/domain/types";
 
 export const ORIGINAL_PDF_BUCKET = "original-pdfs";
 
@@ -72,11 +72,6 @@ function capitalize(message: string): string {
   return message ? `${message[0].toLocaleUpperCase()}${message.slice(1)}.` : message;
 }
 
-// The UI has no separate "sent" state yet; both mean the document is out for signature.
-function toDocumentStatus(status: DocumentRow["status"]): DocumentStatus {
-  return status === "sent" ? "in_progress" : status;
-}
-
 export function toRecipient(row: RecipientRow): Recipient {
   return {
     id: row.id,
@@ -115,7 +110,7 @@ export function toDocumentSummary(
   return {
     id: row.id,
     title: row.title,
-    status: toDocumentStatus(row.status),
+    status: row.status,
     externalId: row.external_id ?? undefined,
     originalFileName: row.original_file_name ?? undefined,
     version: row.version,

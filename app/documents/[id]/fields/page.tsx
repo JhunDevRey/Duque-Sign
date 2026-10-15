@@ -6,9 +6,11 @@ import { useCallback, useEffect, useRef, useState, type MouseEvent, type Pointer
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import { AppShell } from "@/components/app-shell";
 import { useLocalWorkspace } from "@/components/local-workspace";
-import { Button } from "@/components/ui/button";
+import { Button, IconButton } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icons";
 import { Card } from "@/components/ui/card";
-import { Field as FormField, Input, Select } from "@/components/ui/form";
+import { Checkbox, Field as FormField, Input, Select } from "@/components/ui/form";
+import { cn } from "@/lib/cn";
 import { Notice } from "@/components/ui/notice";
 import { PageHeader } from "@/components/ui/page-header";
 import { isSupabaseClientConfigured } from "@/lib/supabase/client";
@@ -70,7 +72,7 @@ export default function DocumentFieldsPage() {
     return (
       <AppShell>
         <Notice tone="warning" title={t("editor.lockedTitle")}>{t("editor.lockedMessage")}</Notice>
-        <Link href={`/documents/${document.id}`} className="mt-4 inline-flex text-sm text-accent hover:underline">← {t("common.back")}</Link>
+        <Link href={`/documents/${document.id}`} className="mt-4 inline-flex text-sm font-medium text-accent underline-offset-4 hover:underline">← {t("common.back")}</Link>
       </AppShell>
     );
   }
@@ -377,26 +379,44 @@ function DocumentFieldsEditor({
 
   return (
     <AppShell>
-      <PageHeader title={`${t("editor.fields")}: ${document.title}`} subtitle={t("editor.clickToPlace")} />
-      <div className="mb-4 flex flex-wrap gap-2">
-        <Link href={`/documents/${document.id}`} className="inline-flex h-10 items-center rounded-md px-3 text-sm text-accent hover:bg-surface-muted">← {t("common.back")}</Link>
-        <Button variant="secondary" onClick={detectAnchors} disabled={!pdf || loading}>{t("editor.detectAnchors")}</Button>
-        <Button variant="primary" onClick={saveFields} disabled={saving}>{saving ? t("common.loading") : t("common.save")}</Button>
-      </div>
+      <Link href={`/documents/${document.id}`} className="mb-4 inline-flex items-center gap-1.5 rounded-full py-1.5 pr-3 pl-1 text-sm text-muted hover:text-foreground">
+        <Icon name="back" className="size-[18px]" />
+        {t("common.back")}
+      </Link>
+      <PageHeader
+        title={document.title}
+        subtitle={t("editor.clickToPlace")}
+        actions={
+          <>
+            <Button variant="secondary" onClick={detectAnchors} disabled={!pdf || loading}>
+              <Icon name="search" className="size-[18px]" />
+              {t("editor.detectAnchors")}
+            </Button>
+            <Button variant="primary" onClick={saveFields} disabled={saving}>
+              <Icon name="check" className="size-[18px]" />
+              {saving ? t("common.loading") : t("common.save")}
+            </Button>
+          </>
+        }
+      />
       {error && <Notice tone="danger" className="mb-4">{error}</Notice>}
       {notice && <Notice tone="success" className="mb-4">{notice}</Notice>}
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem]">
-        <Card className="min-w-0 p-3 sm:p-5">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <Card className="min-w-0 p-2 sm:p-4">
+          <div className="mb-2 flex items-center justify-between gap-3 pl-3 sm:mb-3">
             <p className="text-sm font-medium">{t("common.pageOf", { page: pageNumber, total: pdf?.numPages ?? document.pageCount })}</p>
-            <div className="flex gap-2">
-              <Button size="sm" variant="secondary" disabled={pageNumber <= 1} onClick={() => setPageNumber((page) => page - 1)}>{t("common.pagePrevious")}</Button>
-              <Button size="sm" variant="secondary" disabled={!pdf || pageNumber >= pdf.numPages} onClick={() => setPageNumber((page) => page + 1)}>{t("common.pageNext")}</Button>
+            <div className="flex gap-1">
+              <IconButton label={t("common.pagePrevious")} disabled={pageNumber <= 1} onClick={() => setPageNumber((page) => page - 1)}>
+                <Icon name="chevronLeft" />
+              </IconButton>
+              <IconButton label={t("common.pageNext")} disabled={!pdf || pageNumber >= pdf.numPages} onClick={() => setPageNumber((page) => page + 1)}>
+                <Icon name="chevronRight" />
+              </IconButton>
             </div>
           </div>
-          <div ref={containerRef} className="overflow-auto rounded-md bg-surface-muted p-2 sm:p-3">
+          <div ref={containerRef} className="overflow-auto rounded-2xl bg-surface-muted p-2 sm:p-4">
             {loading ? (
-              <div className="flex h-64 items-center justify-center text-sm text-muted">{t("common.loading")}</div>
+              <div className="mx-auto h-[60vh] max-w-xl animate-pulse rounded-lg bg-surface-strong" />
             ) : error && !pdf ? (
               <p className="p-6 text-sm text-danger">{error}</p>
             ) : (
@@ -432,11 +452,12 @@ function DocumentFieldsEditor({
                       onPointerMove={moveField}
                       onPointerUp={() => { dragRef.current = null; }}
                       onPointerCancel={() => { dragRef.current = null; }}
-                      className={`absolute overflow-hidden rounded border-2 px-1 text-left text-[9px] leading-tight shadow-sm sm:text-[10px] ${
+                      className={cn(
+                        "absolute overflow-hidden rounded-md border-2 px-1 text-left text-[9px] leading-tight shadow-sm sm:text-[10px]",
                         selectedFieldId === field.id
-                          ? "z-10 border-accent bg-accent-soft/95 text-accent"
-                          : "border-accent/60 bg-white/95 text-foreground"
-                      }`}
+                          ? "z-10 border-[#0b57d0] bg-[#d3e3fd]/95 text-[#041e49] ring-4 ring-[#0b57d0]/20"
+                          : "border-[#0b57d0]/55 bg-white/95 text-[#1f1f1f]",
+                      )}
                       style={{
                         left: `${field.x * 100}%`,
                         top: `${field.y * 100}%`,
@@ -447,7 +468,7 @@ function DocumentFieldsEditor({
                       }}
                     >
                       <span className="block truncate font-medium">{fieldLabel(field)}</span>
-                      <span className="block truncate text-muted">{recipient?.name}</span>
+                      <span className="block truncate text-[#5e6268]">{recipient?.name}</span>
                     </button>
                   );
                 })}
@@ -457,8 +478,8 @@ function DocumentFieldsEditor({
         </Card>
 
         <aside className="space-y-5">
-          <Card className="space-y-4 p-4">
-            <h2 className="font-semibold">{t("editor.fields")}</h2>
+          <Card className="space-y-4 p-5">
+            <h2 className="text-base font-medium">{t("editor.fields")}</h2>
             <FormField label={t("editor.assignTo")} htmlFor="field-recipient">
               <Select id="field-recipient" value={activeRecipientId} onChange={(event) => setActiveRecipientId(event.target.value)}>
                 {document.recipients.map((recipient) => (
@@ -466,24 +487,41 @@ function DocumentFieldsEditor({
                 ))}
               </Select>
             </FormField>
-            <FormField label={t("editor.fields")} htmlFor="field-type">
-              <Select id="field-type" value={activeType} onChange={(event) => setActiveType(event.target.value as FieldType)}>
-                {FIELD_TYPES.map((type) => <option key={type} value={type}>{t(`fieldTypes.${type}`)}</option>)}
-              </Select>
-            </FormField>
+            <fieldset className="space-y-2">
+              <legend className="mb-2 px-1 text-sm font-medium">{t("editor.fields")}</legend>
+              <div className="flex flex-wrap gap-2">
+                {FIELD_TYPES.map((type) => (
+                  <button
+                    key={type}
+                    type="button"
+                    aria-pressed={activeType === type}
+                    onClick={() => setActiveType(type)}
+                    className={cn(
+                      "inline-flex h-9 items-center gap-1.5 rounded-xl border px-3 text-sm font-medium transition-colors",
+                      activeType === type
+                        ? "border-transparent bg-accent-soft text-accent-soft-foreground"
+                        : "border-border text-muted hover:bg-surface-muted hover:text-foreground",
+                    )}
+                  >
+                    {activeType === type && <Icon name="check" className="size-4" />}
+                    {t(`fieldTypes.${type}`)}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
             <p className="text-xs text-muted">{t("editor.clickToPlace")}</p>
-            <div className="max-h-72 space-y-2 overflow-auto">
+            <div className="max-h-80 space-y-2 overflow-auto">
               {fields.length ? fields.map((field) => {
                 const recipient = document.recipients.find((entry) => entry.id === field.recipientId);
                 return (
-                  <div key={field.id} className={`rounded-md border p-2 ${selectedFieldId === field.id ? "border-accent" : "border-border"}`}>
-                    <button type="button" className="w-full text-left" onClick={() => { setSelectedFieldId(field.id); setPageNumber(field.page); }}>
+                  <div key={field.id} className={cn("flex items-start gap-2 rounded-2xl p-3 transition-colors", selectedFieldId === field.id ? "bg-accent-soft/70" : "bg-surface-muted")}>
+                    <button type="button" className="min-w-0 flex-1 text-left" onClick={() => { setSelectedFieldId(field.id); setPageNumber(field.page); }}>
                       <span className="block truncate text-sm font-medium">{fieldLabel(field)}</span>
                       <span className="text-xs text-muted">{recipient?.name} · {t("common.page", { page: field.page })} · {field.source === "anchor" ? t("editor.fromAnchor") : t("editor.fields")}</span>
                     </button>
-                    <button type="button" className="mt-1 text-xs text-danger hover:underline" onClick={() => setFields((current) => current.filter((item) => item.id !== field.id))}>
-                      {t("common.delete")}
-                    </button>
+                    <IconButton label={t("common.delete")} className="-my-1 size-9 hover:text-danger" onClick={() => setFields((current) => current.filter((item) => item.id !== field.id))}>
+                      <Icon name="trash" className="size-[18px]" />
+                    </IconButton>
                   </div>
                 );
               }) : <p className="text-sm text-muted">{t("editor.noSelection")}</p>}
@@ -492,8 +530,8 @@ function DocumentFieldsEditor({
           </Card>
 
           {selectedField && (
-            <Card className="space-y-3 p-4">
-              <h2 className="font-semibold">{t("editor.selectedField")}</h2>
+            <Card className="space-y-4 p-5">
+              <h2 className="text-base font-medium">{t("editor.selectedField")}</h2>
               <FormField label={t("editor.label")} htmlFor="field-label">
                 <Input
                   id="field-label"
@@ -512,10 +550,11 @@ function DocumentFieldsEditor({
                   {document.recipients.map((recipient) => <option key={recipient.id} value={recipient.id}>{recipient.name} ({recipient.role})</option>)}
                 </Select>
               </FormField>
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" checked={selectedField.required} onChange={(event) => setFields((current) => current.map((field) => field.id === selectedField.id ? { ...field, required: event.target.checked } : field))} />
-                {t("common.required")}
-              </label>
+              <Checkbox
+                label={t("common.required")}
+                checked={selectedField.required}
+                onChange={(event) => setFields((current) => current.map((field) => field.id === selectedField.id ? { ...field, required: event.target.checked } : field))}
+              />
               <p className="text-xs text-muted">{selectedField.source === "anchor" ? t("editor.fromAnchor") : t("editor.manualFieldHint")}</p>
             </Card>
           )}

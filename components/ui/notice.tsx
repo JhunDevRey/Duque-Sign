@@ -1,13 +1,14 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import type { Tone } from "./badge";
+import { Icon, type IconName } from "./icons";
 
-const tones: Record<Tone, string> = {
-  neutral: "border-border bg-surface-muted text-foreground",
-  accent: "border-accent/30 bg-accent-soft text-foreground",
-  success: "border-success/30 bg-success-soft text-foreground",
-  warning: "border-warning/30 bg-warning-soft text-foreground",
-  danger: "border-danger/30 bg-danger-soft text-foreground",
+const tones: Record<Tone, { box: string; icon: string; name: IconName }> = {
+  neutral: { box: "bg-surface-muted", icon: "text-muted", name: "info" },
+  accent: { box: "bg-accent-soft/70", icon: "text-accent", name: "info" },
+  success: { box: "bg-success-soft", icon: "text-success", name: "check" },
+  warning: { box: "bg-warning-soft", icon: "text-warning", name: "alert" },
+  danger: { box: "bg-danger-soft", icon: "text-danger", name: "alert" },
 };
 
 export function Notice({
@@ -21,10 +22,14 @@ export function Notice({
   children: ReactNode;
   className?: string;
 }) {
+  const style = tones[tone];
   return (
-    <div role={tone === "danger" ? "alert" : "status"} className={cn("rounded-md border px-3 py-2 text-sm", tones[tone], className)}>
-      {title && <p className="font-medium">{title}</p>}
-      <div className={title ? "mt-0.5" : undefined}>{children}</div>
+    <div role={tone === "danger" ? "alert" : "status"} className={cn("flex gap-3 rounded-2xl px-4 py-3 text-sm text-foreground", style.box, className)}>
+      <Icon name={style.name} className={cn("mt-px size-[18px]", style.icon)} />
+      <div className="min-w-0 flex-1">
+        {title && <p className="font-medium">{title}</p>}
+        <div className={title ? "mt-0.5 text-foreground/85" : undefined}>{children}</div>
+      </div>
     </div>
   );
 }

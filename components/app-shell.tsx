@@ -7,11 +7,15 @@ import { sampleViewer } from "@/lib/preview/sample-data";
 export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-dvh bg-background">
-      <PreviewBanner />
       <SupabaseAuthGuard>
-        <div className="mx-auto flex min-h-dvh w-full max-w-[1600px] flex-col lg:flex-row">
+        <div className="flex min-h-dvh w-full flex-col lg:flex-row">
           <Sidebar userName={sampleViewer.name} organization={sampleViewer.organization} />
-          <main className="w-full min-w-0 flex-1 px-4 py-5 sm:p-6 lg:p-8">{children}</main>
+          <div className="flex min-w-0 flex-1 flex-col">
+            <PreviewBanner />
+            <main className="animate-rise mx-auto w-full max-w-6xl flex-1 px-4 pt-4 pb-10 sm:px-6 sm:pt-8 lg:px-10 lg:pt-10">
+              {children}
+            </main>
+          </div>
         </div>
       </SupabaseAuthGuard>
     </div>

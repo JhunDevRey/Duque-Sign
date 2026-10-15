@@ -7,15 +7,18 @@ import { useLocalWorkspace } from "@/components/local-workspace";
 import { DocumentStatusBadge, RecipientStatusBadge } from "@/components/status-badge";
 import { Card } from "@/components/ui/card";
 import { ButtonLink } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icons";
+import { Notice } from "@/components/ui/notice";
 import { PageHeader } from "@/components/ui/page-header";
-import { Input } from "@/components/ui/form";
 import { formatDateTime } from "@/lib/format";
 import { t, type MessageKey } from "@/lib/i18n";
 import type { DocumentStatus } from "@/lib/domain/types";
+import { cn } from "@/lib/cn";
 
 const statuses: Array<DocumentStatus | "all"> = [
   "all",
   "draft",
+  "sent",
   "in_progress",
   "completed",
   "declined",
@@ -32,19 +35,21 @@ export default function DocumentsPage() {
 
   const filteredDocuments = useMemo(() => {
     const normalizedSearch = search.trim().toLocaleLowerCase();
-    return documents.filter((document) => {
-      const matchesStatus = status === "all" || document.status === status;
-      const matchesSearch =
-        !normalizedSearch ||
-        document.title.toLocaleLowerCase().includes(normalizedSearch) ||
-        document.externalId?.toLocaleLowerCase().includes(normalizedSearch) ||
-        document.recipients.some(
-          (recipient) =>
-            recipient.name.toLocaleLowerCase().includes(normalizedSearch) ||
-            recipient.email.toLocaleLowerCase().includes(normalizedSearch),
-        );
-      return matchesStatus && matchesSearch;
-    });
+    return documents
+      .filter((document) => {
+        const matchesStatus = status === "all" || document.status === status;
+        const matchesSearch =
+          !normalizedSearch ||
+          document.title.toLocaleLowerCase().includes(normalizedSearch) ||
+          document.externalId?.toLocaleLowerCase().includes(normalizedSearch) ||
+          document.recipients.some(
+            (recipient) =>
+              recipient.name.toLocaleLowerCase().includes(normalizedSearch) ||
+              recipient.email.toLocaleLowerCase().includes(normalizedSearch),
+          );
+        return matchesStatus && matchesSearch;
+      })
+      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }, [documents, search, status]);
 
   return (
@@ -52,116 +57,110 @@ export default function DocumentsPage() {
       <PageHeader
         title={t("documents.title")}
         subtitle={t("documents.subtitle")}
-        actions={<ButtonLink href="/documents/new" variant="primary">{t("nav.newDocument")}</ButtonLink>}
+        actions={
+          <ButtonLink href="/documents/new" variant="primary">
+            <Icon name="plus" className="size-[18px]" />
+            {t("nav.newDocument")}
+          </ButtonLink>
+        }
       />
 
-      {error && <p role="alert" className="mb-4 rounded-md border border-danger/30 bg-danger-soft p-3 text-sm text-danger">{error}</p>}
+      {error && <Notice tone="danger" className="mb-4">{error}</Notice>}
 
-      <Card className="p-4">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div className="w-full max-w-md">
-            <Input
-              type="search"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder={t("documents.searchPlaceholder")}
-              aria-label={t("documents.searchPlaceholder")}
-            />
-          </div>
-          <div className="flex flex-wrap gap-2 text-sm text-muted">
-            {statuses.map((item) => {
-              const label = item === "all" ? t("documents.filterAll") : t(asMessageKey(`documentStatus.${item}`));
-              return (
-                <button
-                  key={item}
-                  type="button"
-                  aria-pressed={status === item}
-                  onClick={() => setStatus(item)}
-                  className={`min-h-10 rounded-full border px-3 py-2 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
-                    status === item ? "border-accent bg-accent-soft text-accent" : "border-border hover:bg-surface-muted"
-                  }`}
-                >
-                  {label}
-                </button>
-              );
-            })}
-          </div>
+      <div className="relative">
+        <Icon name="search" className="pointer-events-none absolute top-1/2 left-5 -translate-y-1/2 text-muted" />
+        <input
+          type="search"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder={t("documents.searchPlaceholder")}
+          aria-label={t("documents.searchPlaceholder")}
+          className="h-14 w-full rounded-full border border-transparent bg-surface-muted pr-5 pl-14 text-base text-foreground transition-[background-color,border-color,box-shadow] placeholder:text-muted hover:bg-surface-strong focus:border-accent focus:bg-surface focus:outline-none focus:ring-4 focus:ring-accent/15"
+        />
+      </div>
+
+      <div className="-mx-4 mt-4 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0">
+        <div className="flex w-max gap-2 sm:w-auto sm:flex-wrap" role="group" aria-label={t("common.status")}>
+          {statuses.map((item) => {
+            const label = item === "all" ? t("documents.filterAll") : t(asMessageKey(`documentStatus.${item}`));
+            const active = status === item;
+            return (
+              <button
+                key={item}
+                type="button"
+                aria-pressed={active}
+                onClick={() => setStatus(item)}
+                className={cn(
+                  "inline-flex h-9 items-center gap-1.5 rounded-xl border px-3.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+                  active
+                    ? "border-transparent bg-accent-soft text-accent-soft-foreground"
+                    : "border-border text-muted hover:bg-surface-muted hover:text-foreground",
+                )}
+              >
+                {active && <Icon name="check" className="size-4" />}
+                {label}
+              </button>
+            );
+          })}
         </div>
-      </Card>
+      </div>
 
       {!ready ? (
-        <p className="mt-6 text-sm text-muted">{t("common.loading")}</p>
+        <div className="mt-6 space-y-2">
+          {[0, 1, 2, 3].map((item) => <div key={item} className="h-20 animate-pulse rounded-3xl bg-surface-muted" />)}
+        </div>
       ) : filteredDocuments.length === 0 ? (
-        <Card className="mt-6 p-10 text-center">
-          <p className="font-medium">{t("documents.empty")}</p>
+        <Card className="mt-6 flex flex-col items-center px-6 py-14 text-center">
+          <span className="brand-mark size-10" aria-hidden="true" />
+          <p className="mt-4 font-medium">{t("documents.empty")}</p>
           {documents.length === 0 && (
-            <ButtonLink href="/documents/new" variant="primary" size="sm" className="mt-4">{t("nav.newDocument")}</ButtonLink>
+            <ButtonLink href="/documents/new" variant="tonal" size="sm" className="mt-4">
+              <Icon name="plus" className="size-4" />
+              {t("nav.newDocument")}
+            </ButtonLink>
           )}
         </Card>
       ) : (
         <Card className="mt-6 overflow-hidden">
-          <div className="divide-y divide-border md:hidden">
+          <div className="hidden grid-cols-[minmax(0,2fr)_minmax(0,1.6fr)_10rem_8rem] gap-4 border-b border-border/70 px-6 py-3 text-xs font-medium text-muted xl:grid">
+            <span>{t("documents.columnTitle")}</span>
+            <span>{t("documents.columnRecipients")}</span>
+            <span>{t("documents.columnUpdated")}</span>
+            <span className="text-right">{t("common.status")}</span>
+          </div>
+          <ul className="p-2 xl:p-0">
             {filteredDocuments.map((document) => (
-              <Link key={document.id} href={`/documents/${document.id}`} className="block space-y-3 p-4 hover:bg-surface-muted">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="truncate font-medium">{document.title}</p>
-                    <p className="mt-1 text-xs text-muted">
-                      {document.externalId ? t("documents.reference", { ref: document.externalId }) : t("documents.version", { version: document.version })}
-                    </p>
-                  </div>
-                  <DocumentStatusBadge status={document.status} />
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {document.recipients.map((recipient) => (
-                    <span key={recipient.id} className="inline-flex flex-col gap-1 rounded-md border border-border px-2 py-1 text-xs">
-                      <span>{recipient.name}</span>
-                      <RecipientStatusBadge status={recipient.status} />
+              <li key={document.id} className="xl:border-b xl:border-border/50 xl:last:border-0">
+                <Link
+                  href={`/documents/${document.id}`}
+                  className="flex flex-col gap-3 rounded-2xl p-3 transition-colors hover:bg-surface-muted xl:grid xl:grid-cols-[minmax(0,2fr)_minmax(0,1.6fr)_10rem_8rem] xl:items-center xl:gap-4 xl:rounded-none xl:px-6 xl:py-4"
+                >
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent-soft-foreground">
+                      <Icon name="document" />
                     </span>
-                  ))}
-                </div>
-                <p className="text-xs text-muted">{formatDateTime(document.updatedAt)}</p>
-              </Link>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium">{document.title}</p>
+                      <p className="mt-0.5 truncate text-xs text-muted">
+                        {document.externalId ? t("documents.reference", { ref: document.externalId }) : t("documents.version", { version: document.version })}
+                      </p>
+                    </div>
+                    <span className="xl:hidden"><DocumentStatusBadge status={document.status} /></span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 pl-13 xl:pl-0">
+                    {document.recipients.map((recipient) => (
+                      <span key={recipient.id} className="inline-flex max-w-full items-center gap-2 rounded-full bg-surface-muted py-0.5 pr-0.5 pl-3 text-xs">
+                        <span className="truncate">{recipient.name}</span>
+                        <RecipientStatusBadge status={recipient.status} />
+                      </span>
+                    ))}
+                  </div>
+                  <p className="pl-13 text-xs text-muted xl:pl-0 xl:text-sm">{formatDateTime(document.updatedAt)}</p>
+                  <span className="hidden justify-self-end xl:block"><DocumentStatusBadge status={document.status} /></span>
+                </Link>
+              </li>
             ))}
-          </div>
-          <div className="hidden overflow-x-auto md:block">
-            <table className="min-w-full text-left text-sm">
-              <thead className="border-b border-border bg-surface-muted text-muted">
-                <tr>
-                  <th className="px-4 py-3 font-medium">{t("documents.columnTitle")}</th>
-                  <th className="px-4 py-3 font-medium">{t("documents.columnRecipients")}</th>
-                  <th className="px-4 py-3 font-medium">{t("documents.columnUpdated")}</th>
-                  <th className="px-4 py-3 font-medium">{t("common.status")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredDocuments.map((document) => (
-                  <tr key={document.id} className="border-b border-border last:border-0 hover:bg-surface-muted">
-                    <td className="px-4 py-4 align-top">
-                      <Link href={`/documents/${document.id}`} className="block">
-                        <p className="font-medium text-foreground">{document.title}</p>
-                        <p className="mt-1 text-xs text-muted">
-                          {document.externalId ? t("documents.reference", { ref: document.externalId }) : t("documents.version", { version: document.version })}
-                        </p>
-                      </Link>
-                    </td>
-                    <td className="px-4 py-4 align-top">
-                      <div className="flex flex-wrap gap-2">
-                        {document.recipients.map((recipient) => (
-                          <span key={recipient.id} className="inline-flex flex-col gap-1 rounded-md border border-border px-2 py-1">
-                            <span>{recipient.name}</span>
-                            <RecipientStatusBadge status={recipient.status} />
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 align-top text-muted">{formatDateTime(document.updatedAt)}</td>
-                    <td className="px-4 py-4 align-top"><DocumentStatusBadge status={document.status} /></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          </ul>
         </Card>
       )}
     </AppShell>

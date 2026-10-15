@@ -125,6 +125,7 @@ export function getSampleDocument(id: string): DocumentSummary | undefined {
 export function countSampleDocumentsByStatus(): Record<DocumentStatus, number> {
   const counts: Record<DocumentStatus, number> = {
     draft: 0,
+    sent: 0,
     in_progress: 0,
     completed: 0,
     declined: 0,

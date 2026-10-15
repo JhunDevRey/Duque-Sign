@@ -52,7 +52,12 @@ export function SupabaseAuthGuard({ children }: { children: ReactNode }) {
   }, [pathname, router]);
 
   if (state === "checking") {
-    return <div className="mx-auto flex min-h-[40vh] max-w-xl items-center justify-center text-sm text-muted">Checking your session…</div>;
+    return (
+      <div className="flex min-h-dvh flex-col items-center justify-center gap-4 text-sm text-muted" role="status">
+        <span className="brand-mark size-10 animate-pulse" aria-hidden="true" />
+        Checking your session…
+      </div>
+    );
   }
   if (state === "error") {
     return (
@@ -68,7 +73,7 @@ export function SupabaseAuthGuard({ children }: { children: ReactNode }) {
       <div className="mx-auto max-w-xl p-6">
         <Notice tone="warning" title="No organization assigned">
           This account does not belong to an organization yet. Create your organization workspace to continue.
-          <Link href="/onboarding" className="mt-3 inline-flex text-sm font-medium text-accent hover:underline">
+          <Link href="/onboarding" className="mt-3 inline-flex text-sm font-medium font-medium text-accent underline-offset-4 hover:underline">
             Set up organization
           </Link>
         </Notice>

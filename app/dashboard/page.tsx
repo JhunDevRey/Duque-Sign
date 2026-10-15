@@ -4,20 +4,37 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { AppShell } from "@/components/app-shell";
 import { useLocalWorkspace } from "@/components/local-workspace";
-import { DocumentStatusBadge, RecipientStatusBadge } from "@/components/status-badge";
+import { useAccountEmail } from "@/components/shell/auth-controls";
+import { DocumentStatusBadge } from "@/components/status-badge";
 import { Card, CardHeader } from "@/components/ui/card";
 import { ButtonLink } from "@/components/ui/button";
-import { PageHeader } from "@/components/ui/page-header";
+import { Icon, type IconName } from "@/components/ui/icons";
 import { formatDateTime } from "@/lib/format";
 import { t } from "@/lib/i18n";
 import type { DocumentStatus } from "@/lib/domain/types";
 import { cn } from "@/lib/cn";
 
+function firstName(email: string | null): string | null {
+  if (!email) return null;
+  const word = email.split("@")[0].split(/[._\-+0-9]+/).find(Boolean);
+  return word ? word[0].toLocaleUpperCase() + word.slice(1) : null;
+}
+
+const tileTones = {
+  accent: "bg-accent-soft text-accent-soft-foreground",
+  success: "bg-success-soft text-success",
+  neutral: "bg-surface-strong text-foreground",
+  warning: "bg-warning-soft text-warning",
+} as const;
+
 export default function DashboardPage() {
   const { documents, ready } = useLocalWorkspace();
+  const { email } = useAccountEmail();
+  const name = firstName(email);
   const counts = useMemo(() => {
     const result: Record<DocumentStatus, number> = {
       draft: 0,
+      sent: 0,
       in_progress: 0,
       completed: 0,
       declined: 0,
@@ -28,88 +45,96 @@ export default function DashboardPage() {
     return result;
   }, [documents]);
 
-  const metrics = [
-    { key: "awaiting", value: counts.in_progress, tone: "accent" as const },
-    { key: "completed", value: counts.completed, tone: "success" as const },
-    { key: "drafts", value: counts.draft, tone: "neutral" as const },
-    { key: "needsAttention", value: counts.declined + counts.expired, tone: "warning" as const },
+  const metrics: Array<{ key: string; value: number; tone: keyof typeof tileTones; icon: IconName }> = [
+    { key: "awaiting", value: counts.sent + counts.in_progress, tone: "accent", icon: "send" },
+    { key: "completed", value: counts.completed, tone: "success", icon: "check" },
+    { key: "drafts", value: counts.draft, tone: "neutral", icon: "edit" },
+    { key: "needsAttention", value: counts.declined + counts.expired, tone: "warning", icon: "alert" },
   ];
   const recentDocuments = [...documents]
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
-    .slice(0, 5);
+    .slice(0, 6);
 
   return (
     <AppShell>
-      <PageHeader
-        title={t("dashboard.title")}
-        subtitle={t("dashboard.subtitle")}
-        actions={<ButtonLink href="/documents/new" variant="primary">{t("nav.newDocument")}</ButtonLink>}
-      />
+      <section className="mb-8 sm:mb-10">
+        <h1 className="text-[34px] leading-tight tracking-tight sm:text-5xl">
+          <span className="text-gradient">{name ? `Hello, ${name}` : "Hello"}</span>
+        </h1>
+        <p className="mt-2 text-lg text-muted sm:text-2xl">{t("dashboard.subtitle")}</p>
+        <div className="mt-6 flex flex-wrap gap-2">
+          <ButtonLink href="/documents/new" variant="primary">
+            <Icon name="upload" className="size-[18px]" />
+            {t("nav.newDocument")}
+          </ButtonLink>
+          <ButtonLink href="/documents" variant="secondary">
+            <Icon name="document" className="size-[18px]" />
+            {t("dashboard.viewAll")}
+          </ButtonLink>
+        </div>
+      </section>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         {metrics.map((metric) => (
-          <Card key={metric.key} className="p-4">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-sm text-muted">{t(`dashboard.${metric.key}` as Parameters<typeof t>[0])}</p>
-                <p className="mt-2 text-3xl font-semibold">{ready ? metric.value : "—"}</p>
-              </div>
-              <span
-                aria-hidden="true"
-                className={cn(
-                  "inline-flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold",
-                  metric.tone === "accent" && "bg-accent-soft text-accent",
-                  metric.tone === "success" && "bg-success-soft text-success",
-                  metric.tone === "warning" && "bg-warning-soft text-warning",
-                  metric.tone === "neutral" && "bg-surface-muted text-muted",
-                )}
-              >
-                {ready ? metric.value : "—"}
-              </span>
+          <div key={metric.key} className="flex flex-col justify-between gap-6 rounded-3xl bg-surface-muted p-4 sm:p-5">
+            <span className={cn("inline-flex size-10 items-center justify-center rounded-full", tileTones[metric.tone])}>
+              <Icon name={metric.icon} />
+            </span>
+            <div>
+              <p className="text-3xl leading-none tabular-nums sm:text-4xl">{ready ? metric.value : "—"}</p>
+              <p className="mt-2 text-sm text-muted">{t(`dashboard.${metric.key}` as Parameters<typeof t>[0])}</p>
             </div>
-          </Card>
+          </div>
         ))}
       </div>
 
-      <div className="mt-8">
-        <Card>
-          <CardHeader
-            title={t("dashboard.recentDocuments")}
-            action={<Link href="/documents" className="text-sm text-accent hover:underline">{t("dashboard.viewAll")}</Link>}
-          />
-          {recentDocuments.length === 0 ? (
-            <div className="p-8 text-center">
-              <p className="text-sm text-muted">{t("documents.empty")}</p>
-              <ButtonLink href="/documents/new" variant="primary" size="sm" className="mt-4">{t("nav.newDocument")}</ButtonLink>
-            </div>
-          ) : (
-            <div className="divide-y divide-border">
-              {recentDocuments.map((document) => (
-                <Link key={document.id} href={`/documents/${document.id}`} className="block p-4 transition-colors hover:bg-surface-muted">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="min-w-0">
-                      <p className="truncate font-medium">{document.title}</p>
-                      <p className="mt-1 text-sm text-muted">
-                        {document.externalId ? `${t("documents.reference", { ref: document.externalId })} · ` : ""}
-                        {t("documents.pages", { count: document.pageCount })} · {formatDateTime(document.updatedAt)}
-                      </p>
-                    </div>
-                    <DocumentStatusBadge status={document.status} />
+      <Card className="mt-8 overflow-hidden">
+        <CardHeader
+          title={t("dashboard.recentDocuments")}
+          action={
+            <Link href="/documents" className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium text-accent hover:bg-accent-soft/50">
+              {t("dashboard.viewAll")}
+              <Icon name="chevronRight" className="size-4" />
+            </Link>
+          }
+        />
+        {!ready ? (
+          <div className="space-y-2 px-3 pb-4 sm:px-4">
+            {[0, 1, 2].map((item) => <div key={item} className="h-16 animate-pulse rounded-2xl bg-surface-muted" />)}
+          </div>
+        ) : recentDocuments.length === 0 ? (
+          <div className="flex flex-col items-center px-6 pt-6 pb-10 text-center">
+            <span className="brand-mark size-10" aria-hidden="true" />
+            <p className="mt-4 text-sm text-muted">{t("documents.empty")}</p>
+            <ButtonLink href="/documents/new" variant="tonal" size="sm" className="mt-4">
+              <Icon name="plus" className="size-4" />
+              {t("nav.newDocument")}
+            </ButtonLink>
+          </div>
+        ) : (
+          <ul className="px-2 pb-2 sm:px-3 sm:pb-3">
+            {recentDocuments.map((document) => (
+              <li key={document.id}>
+                <Link
+                  href={`/documents/${document.id}`}
+                  className="flex items-center gap-3 rounded-2xl p-3 transition-colors hover:bg-surface-muted sm:gap-4"
+                >
+                  <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent-soft-foreground">
+                    <Icon name="document" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium">{document.title}</p>
+                    <p className="mt-0.5 truncate text-xs text-muted sm:text-sm">
+                      {document.recipients.map((recipient) => recipient.name).join(", ") || "—"} · {formatDateTime(document.updatedAt)}
+                    </p>
                   </div>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {document.recipients.map((recipient) => (
-                      <span key={recipient.id} className="inline-flex items-center gap-2 rounded-full border border-border px-2 py-1 text-xs">
-                        {recipient.name}
-                        <RecipientStatusBadge status={recipient.status} />
-                      </span>
-                    ))}
-                  </div>
+                  <DocumentStatusBadge status={document.status} />
                 </Link>
-              ))}
-            </div>
-          )}
-        </Card>
-      </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
     </AppShell>
   );
 }

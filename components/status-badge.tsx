@@ -4,6 +4,7 @@ import { t } from "@/lib/i18n";
 
 const documentTones: Record<DocumentStatus, Tone> = {
   draft: "neutral",
+  sent: "accent",
   in_progress: "accent",
   completed: "success",
   declined: "danger",

@@ -1,30 +1,43 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Caveat, Google_Sans, Google_Sans_Code } from "next/font/google";
 import { LocalWorkspaceProvider } from "@/components/local-workspace";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const googleSans = Google_Sans({
+  variable: "--font-google-sans",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const googleSansCode = Google_Sans_Code({
+  variable: "--font-google-sans-code",
+  subsets: ["latin"],
+});
+
+// Typed signatures are drawn in a handwriting face.
+const signature = Caveat({
+  variable: "--font-signature",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
   title: "Duque Sign",
-  description: "Preview UI for a multi-tenant document signing and workflow platform.",
+  description: "Multi-tenant document signing and workflow platform.",
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f8fafd" },
+    { media: "(prefers-color-scheme: dark)", color: "#131314" },
+  ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${googleSans.variable} ${googleSansCode.variable} ${signature.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col font-sans">
         <LocalWorkspaceProvider>{children}</LocalWorkspaceProvider>
       </body>
     </html>

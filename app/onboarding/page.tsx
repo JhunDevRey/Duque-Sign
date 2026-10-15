@@ -48,7 +48,7 @@ export default function OnboardingPage() {
           <Field label="Organization name" htmlFor="organization-name">
             <Input id="organization-name" required minLength={2} maxLength={120} value={name} onChange={(event) => setName(event.target.value)} />
           </Field>
-          <Button type="submit" variant="primary" disabled={submitting} className="w-full">{submitting ? "Creating…" : "Create organization"}</Button>
+          <Button type="submit" variant="primary" size="lg" disabled={submitting} className="w-full">{submitting ? "Creating…" : "Create organization"}</Button>
         </form>
       </AuthPage>
     </SupabaseAuthGuard>

@@ -24,10 +24,10 @@ export default function TemplatesPage() {
           <Card key={template.id} className="p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-lg font-semibold">{template.name}</h2>
+                <h2 className="text-lg font-medium">{template.name}</h2>
                 <p className="mt-1 text-xs text-muted">{formatDateTime(template.updatedAt)}</p>
               </div>
-              <span className="rounded-full border border-border px-2 py-1 text-xs text-muted">{template.fieldCount} {t("templates.fields")}</span>
+              <span className="rounded-full bg-surface-muted px-2.5 py-1 text-xs text-muted">{template.fieldCount} {t("templates.fields")}</span>
             </div>
 
             <div className="mt-4 space-y-3 text-sm">

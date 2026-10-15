@@ -17,7 +17,7 @@ export default function SettingsPage() {
 
       <div className="grid gap-6 xl:grid-cols-2">
         <Card className="p-4">
-          <div className="mb-4 text-sm font-semibold">{t("settings.tabOrganization")}</div>
+          <div className="mb-4 text-base font-medium">{t("settings.tabOrganization")}</div>
           <div className="space-y-3 text-sm text-muted">
             <div className="flex justify-between"><span>{t("settings.orgName")}</span><span className="font-medium text-foreground">Sample Organization</span></div>
             <div className="flex justify-between"><span>{t("settings.defaultExpiry")}</span><span className="font-medium text-foreground">30 days</span></div>
@@ -27,10 +27,10 @@ export default function SettingsPage() {
         </Card>
 
         <Card className="p-4">
-          <div className="mb-4 text-sm font-semibold">{t("settings.tabMembers")}</div>
+          <div className="mb-4 text-base font-medium">{t("settings.tabMembers")}</div>
           <div className="space-y-3">
             {sampleMembers.map((member) => (
-              <div key={member.id} className="flex items-center justify-between rounded-md border border-border p-3">
+              <div key={member.id} className="flex items-center justify-between rounded-2xl bg-surface-muted p-4">
                 <div>
                   <p className="font-medium">{member.name}</p>
                   <p className="text-sm text-muted">{member.email}</p>
@@ -45,13 +45,13 @@ export default function SettingsPage() {
         </Card>
 
         <Card className="p-4">
-          <div className="mb-4 flex items-center justify-between text-sm font-semibold">
+          <div className="mb-4 flex items-center justify-between text-base font-medium">
             <span>{t("settings.tabApiKeys")}</span>
             <NotConnectedButton variant="secondary" size="sm">{t("settings.createKey")}</NotConnectedButton>
           </div>
           <div className="space-y-3">
             {sampleApiKeys.map((key) => (
-              <div key={key.id} className="rounded-md border border-border p-3">
+              <div key={key.id} className="rounded-2xl bg-surface-muted p-4">
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-medium">{key.name}</p>
                   <span className="rounded-full bg-surface-muted px-2 py-1 text-xs text-muted">{key.mode}</span>
@@ -64,13 +64,13 @@ export default function SettingsPage() {
         </Card>
 
         <Card className="p-4">
-          <div className="mb-4 flex items-center justify-between text-sm font-semibold">
+          <div className="mb-4 flex items-center justify-between text-base font-medium">
             <span>{t("settings.tabWebhooks")}</span>
             <NotConnectedButton variant="secondary" size="sm">{t("settings.addEndpoint")}</NotConnectedButton>
           </div>
           <div className="space-y-3">
             {sampleWebhookEndpoints.map((endpoint) => (
-              <div key={endpoint.id} className="rounded-md border border-border p-3">
+              <div key={endpoint.id} className="rounded-2xl bg-surface-muted p-4">
                 <div className="flex items-center justify-between gap-2">
                   <p className="font-medium break-all">{endpoint.url}</p>
                   <span className="rounded-full bg-success-soft px-2 py-1 text-xs text-success">{endpoint.enabled ? t("settings.enabled") : t("settings.disabled")}</span>
@@ -78,7 +78,7 @@ export default function SettingsPage() {
                 <p className="mt-2 text-sm text-muted">{endpoint.events.join(", ")}</p>
               </div>
             ))}
-            <div className="rounded-md border border-border bg-surface-muted p-3">
+            <div className="rounded-2xl bg-surface-strong/60 p-4">
               <p className="text-sm font-medium">{t("settings.recentDeliveries")}</p>
               <div className="mt-3 space-y-2">
                 {sampleWebhookDeliveries.map((delivery) => (

@@ -1,6 +1,6 @@
 # Duque Sign
 
-Duque Sign is a Next.js prototype for an in-house DocuSign/PandaDoc-style electronic-signature platform. Its dashboard and document management screens are responsive. Browser-local mode supports PDF-backed drafts, search, filters, PDF previews, and draft field placement with PDF anchor-tag detection. Firebase Auth and Firestore integrations support draft metadata and field persistence; document sending and signing are not enabled.
+Duque Sign is a Next.js prototype for an in-house DocuSign/PandaDoc-style electronic-signature platform. Its dashboard and document management screens are responsive. Browser-local mode supports PDF-backed drafts, search, filters, PDF previews, and draft field placement with PDF anchor-tag detection. With Supabase, documents can be sent, signed by recipients through secure links, and finalized into a signed PDF with a signing certificate (see **Preview and feature status**).
 
 ## Local development
 
@@ -42,4 +42,8 @@ firebase deploy --only firestore:rules
 
 Without Firebase credentials, initial records are sample data and new drafts stay in this browser: metadata in `localStorage`, PDFs in IndexedDB. With Firebase configured, draft metadata and recipients are stored in Firestore and PDFs stay in that browser's IndexedDB until Cloud Storage is enabled. Clearing browser storage removes locally stored PDFs; cloud draft details remain. Do not use this prototype for real client documents.
 
-Sending, signing links, recipient signatures, final PDF generation, email delivery, and webhook delivery are not implemented. Anchor tags are detected and represented as draft fields; they are not removed from a final PDF. Cloud Storage awaits management approval for billing; Firebase-mode PDF access is limited to the browser where each draft was created. Do not accept real signing traffic until the full workflow is implemented and reviewed.
+With Supabase configured, drafts can be sent: each recipient gets a single-use signing link (`/sign/<token>`, only its SHA-256 is stored) that the sender copies and shares. Recipients sign in signing order on a mobile-friendly page (consent, drawn or typed signatures, initials, dates, text, checkboxes) or decline. When the last recipient signs, the server stamps every value onto the PDF, appends a signing certificate page, stores it in the `signed-pdfs` bucket, and records its SHA-256. Views, signatures, declines, expiry, and completion are written to the audit log with IP and user agent.
+
+Signing requires migrations `004_send_document.sql` and `005_recipient_signing.sql`, and `SUPABASE_SERVICE_ROLE_KEY` in `.env.local` (server-only; signers are not Supabase users). Typed field values use a standard PDF font, so characters outside Western European scripts are replaced with `?` in the final PDF.
+
+Email delivery and webhook delivery are not implemented. Anchor tags are detected and represented as draft fields; they are not removed from a final PDF. Cloud Storage awaits management approval for billing; Firebase-mode PDF access is limited to the browser where each draft was created. Do not accept real signing traffic until the full workflow is implemented and reviewed.

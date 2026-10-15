@@ -66,7 +66,7 @@ export default function RegisterPage() {
           <Notice tone="success" title="Check your inbox">
             We sent an email verification link to {email}. Verify your address, then sign in to create your organization.
           </Notice>
-          <Link href="/login" className="mt-5 inline-flex text-sm text-accent hover:underline">Go to sign in</Link>
+          <Link href="/login" className="mt-5 inline-flex text-sm font-medium text-accent underline-offset-4 hover:underline">Go to sign in</Link>
         </>
       ) : (
         <>
@@ -76,10 +76,10 @@ export default function RegisterPage() {
             <Field label="Email" htmlFor="email"><Input id="email" type="email" autoComplete="email" required value={email} onChange={(event) => setEmail(event.target.value)} /></Field>
             <Field label="Password" hint="At least 12 characters." htmlFor="password"><Input id="password" type="password" autoComplete="new-password" required minLength={12} value={password} onChange={(event) => setPassword(event.target.value)} /></Field>
             <Field label="Confirm password" htmlFor="confirmation"><Input id="confirmation" type="password" autoComplete="new-password" required minLength={12} value={confirmation} onChange={(event) => setConfirmation(event.target.value)} /></Field>
-            <Button type="submit" variant="primary" disabled={submitting} className="w-full">{submitting ? "Creating account…" : "Create account"}</Button>
+            <Button type="submit" variant="primary" size="lg" disabled={submitting} className="w-full">{submitting ? "Creating account…" : "Create account"}</Button>
           </form>
           <p className="mt-5 text-center text-sm text-muted">
-            Already have an account? <Link href="/login" className="text-accent hover:underline">Sign in</Link>
+            Already have an account? <Link href="/login" className="font-medium text-accent underline-offset-4 hover:underline">Sign in</Link>
           </p>
         </>
       )}

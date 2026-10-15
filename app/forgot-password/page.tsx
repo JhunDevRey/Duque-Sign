@@ -60,11 +60,11 @@ export default function ForgotPasswordPage() {
           {error && <Notice tone="danger" className="mb-4">{error}</Notice>}
           <form onSubmit={submit} className="space-y-4">
             <Field label="Email" htmlFor="email"><Input id="email" type="email" autoComplete="email" required value={email} onChange={(event) => setEmail(event.target.value)} /></Field>
-            <Button type="submit" variant="primary" disabled={submitting} className="w-full">{submitting ? "Sending…" : "Send reset link"}</Button>
+            <Button type="submit" variant="primary" size="lg" disabled={submitting} className="w-full">{submitting ? "Sending…" : "Send reset link"}</Button>
           </form>
         </>
       )}
-      <p className="mt-5 text-center text-sm"><Link href="/login" className="text-accent hover:underline">Back to sign in</Link></p>
+      <p className="mt-5 text-center text-sm"><Link href="/login" className="font-medium text-accent underline-offset-4 hover:underline">Back to sign in</Link></p>
     </AuthPage>
   );
 }

@@ -2,10 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Icon } from "@/components/ui/icons";
+import { cn } from "@/lib/cn";
 import { createSupabaseBrowserClient, isSupabaseClientConfigured } from "@/lib/supabase/client";
 
-export function AuthControls({ fallbackName, compact = false }: { fallbackName: string; compact?: boolean }) {
-  const router = useRouter();
+/** The signed-in user's email, or null while loading / when signed out. */
+export function useAccountEmail() {
   const [email, setEmail] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,6 +29,36 @@ export function AuthControls({ fallbackName, compact = false }: { fallbackName: 
     };
   }, []);
 
+  return { email, error };
+}
+
+function initials(value: string): string {
+  const name = value.split("@")[0].replace(/[._-]+/g, " ").trim();
+  const parts = name.split(/\s+/).filter(Boolean);
+  return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toLocaleUpperCase() || "?";
+}
+
+export function Avatar({ name, className }: { name: string; className?: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={cn(
+        "inline-flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-medium text-white",
+        className,
+      )}
+      style={{ background: "var(--brand-gradient)" }}
+    >
+      {initials(name)}
+    </span>
+  );
+}
+
+export function AuthControls({ fallbackName }: { fallbackName: string }) {
+  const router = useRouter();
+  const { email, error: loadError } = useAccountEmail();
+  const [error, setError] = useState<string | null>(null);
+  const displayName = email ?? (isSupabaseClientConfigured ? "Signed-in user" : fallbackName);
+
   async function handleSignOut() {
     setError(null);
     try {
@@ -39,32 +71,28 @@ export function AuthControls({ fallbackName, compact = false }: { fallbackName: 
     }
   }
 
-  if (compact) {
-    return (
-      <div className="flex flex-col items-end">
-        {isSupabaseClientConfigured ? (
-          <button type="button" onClick={handleSignOut} className="min-h-11 rounded-md px-3 text-xs text-muted hover:bg-surface-muted hover:text-foreground">
-            Sign out
-          </button>
-        ) : (
-          <span className="px-2 text-xs text-muted">Auth unavailable</span>
-        )}
-        {error && <p role="alert" className="absolute top-full right-2 z-40 mt-1 max-w-[calc(100vw-1rem)] rounded-md border border-danger/30 bg-danger-soft p-2 text-xs text-danger shadow-sm">{error}</p>}
-      </div>
-    );
-  }
-
+  const message = error ?? loadError;
   return (
-    <div className="mt-auto border-t border-border px-3 pt-4 text-sm">
-      <p className="truncate font-medium">{email ?? (isSupabaseClientConfigured ? "Signed-in user" : fallbackName)}</p>
-      {isSupabaseClientConfigured ? (
-        <button type="button" onClick={handleSignOut} className="text-xs text-muted hover:text-foreground">
-          Sign out
-        </button>
-      ) : (
-        <p className="text-xs text-muted">Supabase is not configured</p>
-      )}
-      {error && <p role="alert" className="mt-2 text-xs text-danger">{error}</p>}
+    <div className="mt-auto pt-4">
+      <div className="flex items-center gap-3 rounded-full bg-surface p-1.5 pr-1 shadow-elevation-1">
+        <Avatar name={displayName} />
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium">{displayName}</p>
+          {!isSupabaseClientConfigured && <p className="truncate text-xs text-muted">Supabase is not configured</p>}
+        </div>
+        {isSupabaseClientConfigured && (
+          <button
+            type="button"
+            onClick={handleSignOut}
+            aria-label="Sign out"
+            title="Sign out"
+            className="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface-muted hover:text-foreground"
+          >
+            <Icon name="logout" className="size-[18px]" />
+          </button>
+        )}
+      </div>
+      {message && <p role="alert" className="mt-2 px-3 text-xs text-danger">{message}</p>}
     </div>
   );
 }
@@ -100,5 +128,5 @@ export function OrganizationLabel({ fallback }: { fallback: string }) {
     };
   }, []);
 
-  return <p className="mb-6 truncate px-3 text-xs text-muted">{name ?? fallback}</p>;
+  return <p className="truncate text-xs text-muted">{name ?? fallback}</p>;
 }

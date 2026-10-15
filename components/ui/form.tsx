@@ -2,18 +2,18 @@ import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 const control =
-  "w-full rounded-md border border-border bg-surface px-3 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-2 focus:outline-accent/30";
+  "w-full rounded-2xl border border-transparent bg-surface-muted px-4 text-sm text-foreground transition-[background-color,border-color,box-shadow] placeholder:text-muted hover:bg-surface-strong focus:border-accent focus:bg-surface focus:outline-none focus:ring-4 focus:ring-accent/15 disabled:opacity-60";
 
 export function Input({ className, ...props }: ComponentProps<"input">) {
-  return <input className={cn(control, "h-10", className)} {...props} />;
+  return <input className={cn(control, "h-12", className)} {...props} />;
 }
 
 export function Select({ className, ...props }: ComponentProps<"select">) {
-  return <select className={cn(control, "h-10", className)} {...props} />;
+  return <select className={cn(control, "select-chevron h-12", className)} {...props} />;
 }
 
 export function Textarea({ className, ...props }: ComponentProps<"textarea">) {
-  return <textarea className={cn(control, "min-h-24 py-2", className)} {...props} />;
+  return <textarea className={cn(control, "min-h-28 py-3", className)} {...props} />;
 }
 
 export function Field({
@@ -30,20 +30,20 @@ export function Field({
   className?: string;
 }) {
   return (
-    <div className={cn("space-y-1.5", className)}>
-      <label htmlFor={htmlFor} className="block text-sm font-medium">
+    <div className={cn("space-y-2", className)}>
+      <label htmlFor={htmlFor} className="block px-1 text-sm font-medium">
         {label}
       </label>
       {children}
-      {hint && <p className="text-xs text-muted">{hint}</p>}
+      {hint && <p className="px-1 text-xs text-muted">{hint}</p>}
     </div>
   );
 }
 
 export function Checkbox({ label, className, ...props }: ComponentProps<"input"> & { label: ReactNode }) {
   return (
-    <label className={cn("flex items-start gap-2 text-sm", className)}>
-      <input type="checkbox" className="mt-0.5 size-4 accent-accent" {...props} />
+    <label className={cn("flex cursor-pointer items-start gap-3 text-sm", className)}>
+      <input type="checkbox" className="mt-0.5 size-[18px] shrink-0 cursor-pointer rounded accent-accent" {...props} />
       <span>{label}</span>
     </label>
   );
