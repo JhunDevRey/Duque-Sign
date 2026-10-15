@@ -1,0 +1,10 @@
+# Never upload local secrets or build output with `vercel deploy`.
+.env*
+!.env.example
+*-firebase-adminsdk-*.json
+*.pem
+node_modules
+.next
+.claude
+.agents
+*.tsbuildinfo
