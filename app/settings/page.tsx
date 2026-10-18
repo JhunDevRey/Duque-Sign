@@ -17,25 +17,25 @@ export default function SettingsPage() {
 
       <div className="grid gap-6 xl:grid-cols-2">
         <Card className="p-4">
-          <div className="mb-4 text-base font-medium">{t("settings.tabOrganization")}</div>
-          <div className="space-y-3 text-sm text-muted">
-            <div className="flex justify-between"><span>{t("settings.orgName")}</span><span className="font-medium text-foreground">Sample Organization</span></div>
-            <div className="flex justify-between"><span>{t("settings.defaultExpiry")}</span><span className="font-medium text-foreground">30 days</span></div>
-            <div className="flex justify-between"><span>{t("settings.senderName")}</span><span className="font-medium text-foreground">Duque Sign</span></div>
-            <div className="flex justify-between"><span>{t("settings.replyTo")}</span><span className="font-medium text-foreground">noreply@duquesign.example</span></div>
+          <div className="mb-4 text-title-medium">{t("settings.tabOrganization")}</div>
+          <div className="space-y-3 text-body-medium text-on-surface-variant">
+            <div className="flex justify-between"><span>{t("settings.orgName")}</span><span className="font-medium text-on-surface">Sample Organization</span></div>
+            <div className="flex justify-between"><span>{t("settings.defaultExpiry")}</span><span className="font-medium text-on-surface">30 days</span></div>
+            <div className="flex justify-between"><span>{t("settings.senderName")}</span><span className="font-medium text-on-surface">Duque Sign</span></div>
+            <div className="flex justify-between"><span>{t("settings.replyTo")}</span><span className="font-medium text-on-surface">noreply@duquesign.example</span></div>
           </div>
         </Card>
 
         <Card className="p-4">
-          <div className="mb-4 text-base font-medium">{t("settings.tabMembers")}</div>
+          <div className="mb-4 text-title-medium">{t("settings.tabMembers")}</div>
           <div className="space-y-3">
             {sampleMembers.map((member) => (
-              <div key={member.id} className="flex items-center justify-between rounded-2xl bg-surface-muted p-4">
+              <div key={member.id} className="flex items-center justify-between rounded-md bg-surface-container p-4">
                 <div>
                   <p className="font-medium">{member.name}</p>
-                  <p className="text-sm text-muted">{member.email}</p>
+                  <p className="text-body-medium text-on-surface-variant">{member.email}</p>
                 </div>
-                <div className="text-right text-xs text-muted">
+                <div className="text-right text-body-small text-on-surface-variant">
                   <p>{member.role}</p>
                   <p>{formatDateTime(member.joinedAt)}</p>
                 </div>
@@ -45,44 +45,44 @@ export default function SettingsPage() {
         </Card>
 
         <Card className="p-4">
-          <div className="mb-4 flex items-center justify-between text-base font-medium">
+          <div className="mb-4 flex items-center justify-between text-title-medium">
             <span>{t("settings.tabApiKeys")}</span>
             <NotConnectedButton variant="secondary" size="sm">{t("settings.createKey")}</NotConnectedButton>
           </div>
           <div className="space-y-3">
             {sampleApiKeys.map((key) => (
-              <div key={key.id} className="rounded-2xl bg-surface-muted p-4">
+              <div key={key.id} className="rounded-md bg-surface-container p-4">
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-medium">{key.name}</p>
-                  <span className="rounded-full bg-surface-muted px-2 py-1 text-xs text-muted">{key.mode}</span>
+                  <span className="inline-flex h-6 items-center rounded-sm bg-surface-container-highest px-2 text-label-medium text-on-surface-variant">{key.mode}</span>
                 </div>
-                <p className="mt-2 text-sm text-muted">{key.displayPrefix}</p>
-                <div className="mt-2 text-xs text-muted">{key.scopes.join(", ")}</div>
+                <p className="mt-2 text-body-medium text-on-surface-variant">{key.displayPrefix}</p>
+                <div className="mt-2 text-body-small text-on-surface-variant">{key.scopes.join(", ")}</div>
               </div>
             ))}
           </div>
         </Card>
 
         <Card className="p-4">
-          <div className="mb-4 flex items-center justify-between text-base font-medium">
+          <div className="mb-4 flex items-center justify-between text-title-medium">
             <span>{t("settings.tabWebhooks")}</span>
             <NotConnectedButton variant="secondary" size="sm">{t("settings.addEndpoint")}</NotConnectedButton>
           </div>
           <div className="space-y-3">
             {sampleWebhookEndpoints.map((endpoint) => (
-              <div key={endpoint.id} className="rounded-2xl bg-surface-muted p-4">
+              <div key={endpoint.id} className="rounded-md bg-surface-container p-4">
                 <div className="flex items-center justify-between gap-2">
                   <p className="font-medium break-all">{endpoint.url}</p>
-                  <span className="rounded-full bg-success-soft px-2 py-1 text-xs text-success">{endpoint.enabled ? t("settings.enabled") : t("settings.disabled")}</span>
+                  <span className="inline-flex h-6 items-center rounded-sm bg-success-container px-2 text-label-medium text-on-success-container">{endpoint.enabled ? t("settings.enabled") : t("settings.disabled")}</span>
                 </div>
-                <p className="mt-2 text-sm text-muted">{endpoint.events.join(", ")}</p>
+                <p className="mt-2 text-body-medium text-on-surface-variant">{endpoint.events.join(", ")}</p>
               </div>
             ))}
-            <div className="rounded-2xl bg-surface-strong/60 p-4">
-              <p className="text-sm font-medium">{t("settings.recentDeliveries")}</p>
+            <div className="rounded-md bg-surface-container-high p-4">
+              <p className="text-title-small">{t("settings.recentDeliveries")}</p>
               <div className="mt-3 space-y-2">
                 {sampleWebhookDeliveries.map((delivery) => (
-                  <div key={delivery.id} className="flex items-center justify-between text-xs text-muted">
+                  <div key={delivery.id} className="flex items-center justify-between text-body-small text-on-surface-variant">
                     <span>{delivery.event}</span>
                     <span>{delivery.outcome}</span>
                   </div>

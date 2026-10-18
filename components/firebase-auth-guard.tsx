@@ -53,7 +53,7 @@ export function FirebaseAuthGuard({ children }: { children: ReactNode }) {
   }, [pathname, router]);
 
   if (state === "checking") {
-    return <div className="mx-auto flex min-h-[40vh] max-w-xl items-center justify-center text-sm text-muted">Checking your session…</div>;
+    return <div className="mx-auto flex min-h-[40vh] max-w-xl items-center justify-center text-body-medium text-on-surface-variant">Checking your session…</div>;
   }
   if (state === "error") {
     return (

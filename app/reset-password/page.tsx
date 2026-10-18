@@ -53,8 +53,8 @@ export default function ResetPasswordPage() {
           {submitting ? "Updating…" : "Set password"}
         </Button>
       </form>
-      <p className="mt-5 text-center text-sm">
-        <Link href="/login" className="font-medium text-accent underline-offset-4 hover:underline">Back to sign in</Link>
+      <p className="mt-5 text-center text-body-medium">
+        <Link href="/login" className="font-medium text-primary underline-offset-4 hover:underline">Back to sign in</Link>
       </p>
     </AuthPage>
   );

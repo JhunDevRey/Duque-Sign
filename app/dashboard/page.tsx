@@ -7,7 +7,7 @@ import { useLocalWorkspace } from "@/components/local-workspace";
 import { useAccountEmail } from "@/components/shell/auth-controls";
 import { DocumentStatusBadge } from "@/components/status-badge";
 import { Card, CardHeader } from "@/components/ui/card";
-import { ButtonLink } from "@/components/ui/button";
+import { ButtonLink, buttonClass } from "@/components/ui/button";
 import { Icon, type IconName } from "@/components/ui/icons";
 import { formatDateTime } from "@/lib/format";
 import { t } from "@/lib/i18n";
@@ -21,10 +21,10 @@ function firstName(email: string | null): string | null {
 }
 
 const tileTones = {
-  accent: "bg-accent-soft text-accent-soft-foreground",
-  success: "bg-success-soft text-success",
-  neutral: "bg-surface-strong text-foreground",
-  warning: "bg-warning-soft text-warning",
+  accent: "bg-secondary-container text-on-secondary-container",
+  success: "bg-success-container text-on-success-container",
+  neutral: "bg-surface-container-highest text-on-surface-variant",
+  warning: "bg-warning-container text-on-warning-container",
 } as const;
 
 export default function DashboardPage() {
@@ -58,17 +58,15 @@ export default function DashboardPage() {
   return (
     <AppShell>
       <section className="mb-8 sm:mb-10">
-        <h1 className="text-[34px] leading-tight tracking-tight sm:text-5xl">
-          <span className="text-gradient">{name ? `Hello, ${name}` : "Hello"}</span>
-        </h1>
-        <p className="mt-2 text-lg text-muted sm:text-2xl">{t("dashboard.subtitle")}</p>
+        <h1 className="text-headline-large sm:text-display-small">{name ? `Hello, ${name}` : "Hello"}</h1>
+        <p className="mt-2 text-body-large text-on-surface-variant sm:text-title-large sm:font-normal">{t("dashboard.subtitle")}</p>
         <div className="mt-6 flex flex-wrap gap-2">
           <ButtonLink href="/documents/new" variant="primary">
-            <Icon name="upload" className="size-[18px]" />
+            <Icon name="upload" />
             {t("nav.newDocument")}
           </ButtonLink>
           <ButtonLink href="/documents" variant="secondary">
-            <Icon name="document" className="size-[18px]" />
+            <Icon name="document" />
             {t("dashboard.viewAll")}
           </ButtonLink>
         </div>
@@ -76,13 +74,13 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         {metrics.map((metric) => (
-          <div key={metric.key} className="flex flex-col justify-between gap-6 rounded-3xl bg-surface-muted p-4 sm:p-5">
+          <div key={metric.key} className="flex flex-col justify-between gap-6 rounded-md bg-surface-container-highest p-4 sm:p-5">
             <span className={cn("inline-flex size-10 items-center justify-center rounded-full", tileTones[metric.tone])}>
               <Icon name={metric.icon} />
             </span>
             <div>
-              <p className="text-3xl leading-none tabular-nums sm:text-4xl">{ready ? metric.value : "—"}</p>
-              <p className="mt-2 text-sm text-muted">{t(`dashboard.${metric.key}` as Parameters<typeof t>[0])}</p>
+              <p className="text-headline-large tabular-nums sm:text-display-small">{ready ? metric.value : "—"}</p>
+              <p className="mt-1 text-body-medium text-on-surface-variant">{t(`dashboard.${metric.key}` as Parameters<typeof t>[0])}</p>
             </div>
           </div>
         ))}
@@ -92,22 +90,24 @@ export default function DashboardPage() {
         <CardHeader
           title={t("dashboard.recentDocuments")}
           action={
-            <Link href="/documents" className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium text-accent hover:bg-accent-soft/50">
+            <Link href="/documents" className={buttonClass("ghost", "sm")}>
               {t("dashboard.viewAll")}
-              <Icon name="chevronRight" className="size-4" />
+              <Icon name="chevronRight" />
             </Link>
           }
         />
         {!ready ? (
           <div className="space-y-2 px-3 pb-4 sm:px-4">
-            {[0, 1, 2].map((item) => <div key={item} className="h-16 animate-pulse rounded-2xl bg-surface-muted" />)}
+            {[0, 1, 2].map((item) => <div key={item} className="h-16 animate-pulse rounded-lg bg-surface-container-high" />)}
           </div>
         ) : recentDocuments.length === 0 ? (
           <div className="flex flex-col items-center px-6 pt-6 pb-10 text-center">
-            <span className="brand-mark size-10" aria-hidden="true" />
-            <p className="mt-4 text-sm text-muted">{t("documents.empty")}</p>
+            <span aria-hidden="true" className="inline-flex size-12 items-center justify-center rounded-lg bg-secondary-container text-on-secondary-container">
+              <Icon name="document" className="size-6" />
+            </span>
+            <p className="mt-4 text-body-medium text-on-surface-variant">{t("documents.empty")}</p>
             <ButtonLink href="/documents/new" variant="tonal" size="sm" className="mt-4">
-              <Icon name="plus" className="size-4" />
+              <Icon name="plus" />
               {t("nav.newDocument")}
             </ButtonLink>
           </div>
@@ -117,14 +117,14 @@ export default function DashboardPage() {
               <li key={document.id}>
                 <Link
                   href={`/documents/${document.id}`}
-                  className="flex items-center gap-3 rounded-2xl p-3 transition-colors hover:bg-surface-muted sm:gap-4"
+                  className="state-layer flex min-h-[72px] items-center gap-4 rounded-md px-3 py-2 sm:px-4"
                 >
-                  <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent-soft-foreground">
+                  <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-primary-container text-on-primary-container">
                     <Icon name="document" />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium">{document.title}</p>
-                    <p className="mt-0.5 truncate text-xs text-muted sm:text-sm">
+                    <p className="truncate text-body-large">{document.title}</p>
+                    <p className="truncate text-body-medium text-on-surface-variant">
                       {document.recipients.map((recipient) => recipient.name).join(", ") || "—"} · {formatDateTime(document.updatedAt)}
                     </p>
                   </div>

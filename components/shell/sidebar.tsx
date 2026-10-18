@@ -2,12 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
 import { APP_NAME } from "@/lib/config/app";
 import { t, type MessageKey } from "@/lib/i18n";
-import { AuthControls, OrganizationLabel } from "@/components/shell/auth-controls";
-import { ButtonLink, IconButton } from "@/components/ui/button";
+import { AccountMenu, AuthControls, OrganizationLabel } from "@/components/shell/auth-controls";
 import { BrandMark, Icon, type IconName } from "@/components/ui/icons";
 
 const links: Array<{ href: string; label: MessageKey; icon: IconName }> = [
@@ -18,124 +16,162 @@ const links: Array<{ href: string; label: MessageKey; icon: IconName }> = [
   { href: "/settings", label: "nav.settings", icon: "settings" },
 ];
 
-function Brand({ organization }: { organization: string }) {
-  return (
-    <Link href="/dashboard" className="flex min-w-0 items-center gap-3 rounded-full px-2 py-1">
-      <BrandMark className="size-7" />
-      <span className="min-w-0">
-        <span className="block truncate text-lg leading-tight">{APP_NAME}</span>
-        <OrganizationLabel fallback={organization} />
-      </span>
-    </Link>
-  );
+const focusRing = "focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-secondary";
+
+function isActive(pathname: string, href: string) {
+  return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+/**
+ * Adaptive MD3 navigation:
+ * - compact (< 768px): top app bar, bottom navigation bar and a FAB
+ * - medium (768–1023px): navigation rail with a FAB
+ * - expanded (≥ 1024px): standard navigation drawer with an extended FAB
+ */
 export function Sidebar({ userName, organization }: { userName: string; organization: string }) {
   const pathname = usePathname();
-  const [openForPath, setOpenForPath] = useState<string | null>(null);
-  const open = openForPath === pathname;
+  const onNewDocument = pathname === "/documents/new";
 
-  useEffect(() => {
-    if (!open) return;
-    function closeOnEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpenForPath(null);
-    }
-    window.addEventListener("keydown", closeOnEscape);
-    const overflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      window.removeEventListener("keydown", closeOnEscape);
-      document.body.style.overflow = overflow;
-    };
-  }, [open]);
-
-  const content = (id: string) => (
+  return (
     <>
-      <ButtonLink
-        href="/documents/new"
-        variant="tonal"
-        size="lg"
-        onClick={() => setOpenForPath(null)}
-        className="mt-6 mb-4 w-fit rounded-2xl pr-6 pl-5"
+      {/* Compact: top app bar */}
+      <header className="sticky top-0 z-30 flex h-16 w-full items-center gap-3 bg-surface pr-2 pl-4 md:hidden">
+        <Link href="/dashboard" className={cn("flex min-w-0 flex-1 items-center gap-3 rounded-full", focusRing)}>
+          <BrandMark className="size-8" />
+          <span className="truncate text-title-large">{APP_NAME}</span>
+        </Link>
+        <AccountMenu fallbackName={userName} organization={organization} placement="below" />
+      </header>
+
+      {/* Compact: navigation bar */}
+      <nav
+        aria-label={t("nav.mainNavigation")}
+        className="fixed inset-x-0 bottom-0 z-30 flex bg-surface-container pb-[env(safe-area-inset-bottom)] md:hidden"
       >
-        <Icon name="plus" />
-        {t("nav.newDocument")}
-      </ButtonLink>
-      <nav id={id} aria-label={t("nav.mainNavigation")} className="flex flex-col gap-1">
         {links.map((link) => {
-          const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
+          const active = isActive(pathname, link.href);
           return (
             <Link
               key={link.href}
               href={link.href}
-              onClick={() => setOpenForPath(null)}
               aria-current={active ? "page" : undefined}
-              className={cn(
-                "flex min-h-12 items-center gap-3.5 rounded-full px-4 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
-                active
-                  ? "bg-accent-soft font-medium text-accent-soft-foreground"
-                  : "text-foreground/80 hover:bg-surface-strong hover:text-foreground",
-              )}
+              className={cn("group flex h-20 min-w-0 flex-1 flex-col items-center justify-center gap-1", focusRing)}
             >
-              <Icon name={link.icon} />
-              {t(link.label)}
+              <span
+                className={cn(
+                  "state-layer flex h-8 w-16 items-center justify-center rounded-full transition-colors duration-200",
+                  active ? "bg-secondary-container text-on-secondary-container" : "text-on-surface-variant",
+                )}
+              >
+                <Icon name={link.icon} className="size-6" />
+              </span>
+              <span className={cn("max-w-full truncate px-1 text-label-medium", active ? "text-on-surface" : "text-on-surface-variant")}>
+                {t(link.label)}
+              </span>
             </Link>
           );
         })}
       </nav>
-      <AuthControls fallbackName={userName} />
-    </>
-  );
 
-  return (
-    <>
-      <header className="sticky top-0 z-30 flex w-full items-center gap-2 bg-background/85 px-2 py-2 backdrop-blur-md lg:hidden">
-        <IconButton
-          onClick={() => setOpenForPath(open ? null : pathname)}
-          aria-expanded={open}
-          aria-controls="primary-navigation-mobile"
-          label={open ? "Close navigation menu" : "Open navigation menu"}
-          className="text-foreground"
+      {/* Compact: FAB above the navigation bar */}
+      {!onNewDocument && (
+        <Link
+          href="/documents/new"
+          aria-label={t("nav.newDocument")}
+          title={t("nav.newDocument")}
+          className={cn(
+            "state-layer fixed right-4 bottom-[calc(6rem+env(safe-area-inset-bottom))] z-30 inline-flex size-14 items-center justify-center rounded-lg bg-primary-container text-on-primary-container shadow-elevation-3 md:hidden",
+            focusRing,
+          )}
         >
-          <Icon name="menu" />
-        </IconButton>
-        <Link href="/dashboard" className="flex min-w-0 flex-1 items-center gap-2">
-          <BrandMark className="size-6" />
-          <span className="truncate text-lg">{APP_NAME}</span>
+          <Icon name="plus" className="size-6" />
         </Link>
-        <ButtonLink href="/documents/new" variant="tonal" size="sm" className="size-11 px-0" aria-label={t("nav.newDocument")}>
-          <Icon name="plus" />
-        </ButtonLink>
-      </header>
-
-      {open && (
-        <div className="fixed inset-0 z-40 lg:hidden">
-          <button
-            type="button"
-            aria-label="Close navigation menu"
-            className="absolute inset-0 bg-black/40 backdrop-blur-[1px]"
-            onClick={() => setOpenForPath(null)}
-          />
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-label={t("nav.mainNavigation")}
-            className="animate-drawer absolute inset-y-0 left-0 flex w-[min(20rem,86vw)] flex-col overflow-y-auto rounded-r-[28px] bg-surface-muted px-3 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-elevation-2"
-          >
-            <div className="flex items-center justify-between gap-2">
-              <Brand organization={organization} />
-              <IconButton label="Close navigation menu" onClick={() => setOpenForPath(null)}>
-                <Icon name="close" />
-              </IconButton>
-            </div>
-            {content("primary-navigation-mobile")}
-          </div>
-        </div>
       )}
 
-      <aside className="sticky top-0 hidden h-dvh w-72 shrink-0 flex-col overflow-y-auto bg-surface-muted px-3 py-5 lg:flex">
-        <Brand organization={organization} />
-        {content("primary-navigation-desktop")}
+      {/* Medium: navigation rail */}
+      <aside className="sticky top-0 hidden h-dvh w-20 shrink-0 flex-col items-center gap-1 bg-surface py-4 md:flex lg:hidden">
+        <Link href="/dashboard" aria-label={APP_NAME} className={cn("mb-4 rounded-sm", focusRing)}>
+          <BrandMark className="size-10" />
+        </Link>
+        <Link
+          href="/documents/new"
+          aria-label={t("nav.newDocument")}
+          title={t("nav.newDocument")}
+          className={cn(
+            "state-layer mb-6 inline-flex size-14 items-center justify-center rounded-lg bg-primary-container text-on-primary-container",
+            focusRing,
+          )}
+        >
+          <Icon name="plus" className="size-6" />
+        </Link>
+        <nav aria-label={t("nav.mainNavigation")} className="flex flex-col gap-3">
+          {links.map((link) => {
+            const active = isActive(pathname, link.href);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                aria-current={active ? "page" : undefined}
+                className={cn("flex w-20 flex-col items-center gap-1 rounded-lg", focusRing)}
+              >
+                <span
+                  className={cn(
+                    "state-layer flex h-8 w-14 items-center justify-center rounded-full transition-colors duration-200",
+                    active ? "bg-secondary-container text-on-secondary-container" : "text-on-surface-variant",
+                  )}
+                >
+                  <Icon name={link.icon} className="size-6" />
+                </span>
+                <span className={cn("text-label-medium", active ? "text-on-surface" : "text-on-surface-variant")}>{t(link.label)}</span>
+              </Link>
+            );
+          })}
+        </nav>
+        <div className="mt-auto">
+          <AccountMenu fallbackName={userName} organization={organization} placement="side" />
+        </div>
+      </aside>
+
+      {/* Expanded: standard navigation drawer */}
+      <aside className="sticky top-0 hidden h-dvh w-72 shrink-0 flex-col overflow-y-auto bg-surface-container-low px-3 py-4 lg:flex">
+        <Link href="/dashboard" className={cn("flex min-w-0 items-center gap-3 rounded-lg px-4 py-2", focusRing)}>
+          <BrandMark className="size-9" />
+          <span className="min-w-0">
+            <span className="block truncate text-title-large">{APP_NAME}</span>
+            <OrganizationLabel fallback={organization} />
+          </span>
+        </Link>
+        <Link
+          href="/documents/new"
+          className={cn(
+            "state-layer mx-1 mt-4 mb-6 inline-flex h-14 w-fit items-center gap-3 rounded-lg bg-primary-container pr-5 pl-4 text-label-large text-on-primary-container shadow-elevation-1",
+            focusRing,
+          )}
+        >
+          <Icon name="plus" className="size-6" />
+          {t("nav.newDocument")}
+        </Link>
+        <nav aria-label={t("nav.mainNavigation")} className="flex flex-col">
+          {links.map((link) => {
+            const active = isActive(pathname, link.href);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  "state-layer flex h-14 items-center gap-3 rounded-full px-4 text-label-large transition-colors duration-200",
+                  active ? "bg-secondary-container text-on-secondary-container" : "text-on-surface-variant",
+                  focusRing,
+                )}
+              >
+                <Icon name={link.icon} className="size-6" />
+                {t(link.label)}
+              </Link>
+            );
+          })}
+        </nav>
+        <AuthControls fallbackName={userName} />
       </aside>
     </>
   );

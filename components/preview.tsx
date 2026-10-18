@@ -10,9 +10,9 @@ import { isSupabaseClientConfigured } from "@/lib/supabase/client";
 /** Site-wide banner shown while the UI runs without a backend. */
 export function PreviewBanner() {
   return (
-    <div className="px-4 pt-3 sm:px-6 lg:px-10">
-      <p className="mx-auto flex max-w-6xl items-start gap-2 rounded-2xl bg-warning-soft px-4 py-2.5 text-xs text-warning sm:text-sm">
-        <Icon name="alert" className="mt-px size-4" />
+    <div className="px-4 pt-2 sm:px-6 md:pt-4 lg:px-10">
+      <p className="mx-auto flex max-w-6xl items-start gap-3 rounded-md bg-warning-container px-4 py-3 text-body-small text-on-warning-container sm:text-body-medium">
+        <Icon name="alert" className="size-5" />
         <span>
           {isSupabaseClientConfigured
             ? "Prototype: email delivery is not connected, so share signing links yourself. Do not send real client documents until this workspace has been reviewed for production use."
@@ -49,10 +49,10 @@ export function NotConnectedButton({
         {children}
       </Button>
       {shown && (
-        <span className="absolute top-full right-0 z-20 mt-2 w-[min(18rem,calc(100vw-2rem))] rounded-2xl shadow-elevation-2">
+        <span className="absolute top-full right-0 z-20 mt-2 w-[min(18rem,calc(100vw-2rem))] rounded-md shadow-elevation-2">
           <Notice tone="warning" title={noticeTitle ?? t("preview.notConnectedTitle")}>
             <p>{noticeMessage ?? t("preview.notConnected")}</p>
-            <button type="button" className="mt-1 text-xs underline" onClick={() => setShown(false)}>
+            <button type="button" className="mt-1 text-body-small underline" onClick={() => setShown(false)}>
               {t("common.close")}
             </button>
           </Notice>

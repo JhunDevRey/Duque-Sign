@@ -7,7 +7,7 @@ import { PDFDocument } from "pdf-lib";
 import { AppShell } from "@/components/app-shell";
 import { useLocalWorkspace } from "@/components/local-workspace";
 import { Notice } from "@/components/ui/notice";
-import { Button, ButtonLink, IconButton } from "@/components/ui/button";
+import { Button, ButtonLink, IconButton, buttonClass } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icons";
 import { cn } from "@/lib/cn";
 import { Card } from "@/components/ui/card";
@@ -147,8 +147,8 @@ export default function NewDocumentPage() {
 
   return (
     <AppShell>
-      <Link href="/documents" className="mb-4 inline-flex items-center gap-1.5 rounded-full py-1.5 pr-3 pl-1 text-sm text-muted hover:text-foreground">
-        <Icon name="back" className="size-[18px]" />
+      <Link href="/documents" className={buttonClass("ghost", "md", "mb-4 -ml-3")}>
+        <Icon name="back" />
         {t("common.back")}
       </Link>
       <PageHeader title={t("newDocument.title")} subtitle={isSupabaseClientConfigured ? t("newDocument.cloudSubtitle") : t("newDocument.localSubtitle")} />
@@ -158,8 +158,8 @@ export default function NewDocumentPage() {
 
         <Card className="space-y-5 p-5 sm:p-7">
           <div className="flex items-center gap-3">
-            <span className="inline-flex size-8 items-center justify-center rounded-full bg-accent-soft text-sm font-medium text-accent-soft-foreground">1</span>
-            <h2 className="text-lg">{t("newDocument.stepUpload")}</h2>
+            <span className="inline-flex size-8 items-center justify-center rounded-full bg-secondary-container text-title-small text-on-secondary-container">1</span>
+            <h2 className="text-title-medium">{t("newDocument.stepUpload")}</h2>
           </div>
           <div>
             <label
@@ -176,25 +176,25 @@ export default function NewDocumentPage() {
                 if (dropped) setFile(dropped);
               }}
               className={cn(
-                "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-3xl border-2 border-dashed px-6 py-10 text-center transition-colors",
-                dragging ? "border-accent bg-accent-soft/50" : file ? "border-success/50 bg-success-soft/50" : "border-border hover:border-accent/60 hover:bg-surface-muted",
+                "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed px-6 py-10 text-center transition-colors duration-200",
+                dragging ? "border-primary bg-primary-container/60" : file ? "border-success bg-success-container/40" : "border-outline-variant bg-surface-container-low hover:border-outline hover:bg-surface-container",
               )}
             >
-              <span className={cn("inline-flex size-12 items-center justify-center rounded-full", file ? "bg-success-soft text-success" : "bg-accent-soft text-accent-soft-foreground")}>
+              <span className={cn("inline-flex size-12 items-center justify-center rounded-full", file ? "bg-success-container text-on-success-container" : "bg-secondary-container text-on-secondary-container")}>
                 <Icon name={file ? "check" : "upload"} className="size-6" />
               </span>
               {file ? (
                 <>
-                  <span className="max-w-full truncate font-medium">{file.name}</span>
-                  <span className="text-sm text-muted">{formatBytes(file.size)} · Click to choose a different file</span>
+                  <span className="max-w-full truncate text-title-medium">{file.name}</span>
+                  <span className="text-body-medium text-on-surface-variant">{formatBytes(file.size)} · Click to choose a different file</span>
                 </>
               ) : (
                 <>
-                  <span className="font-medium">{t("newDocument.chooseFile")}</span>
-                  <span className="text-sm text-muted">Drag a PDF here, or click to browse</span>
+                  <span className="text-title-medium">{t("newDocument.chooseFile")}</span>
+                  <span className="text-body-medium text-on-surface-variant">Drag a PDF here, or click to browse</span>
                 </>
               )}
-              <span className="text-xs text-muted">{t("newDocument.uploadHint", { size: formatBytes(MAX_UPLOAD_BYTES), pages: MAX_UPLOAD_PAGES })}</span>
+              <span className="text-body-small text-on-surface-variant">{t("newDocument.uploadHint", { size: formatBytes(MAX_UPLOAD_BYTES), pages: MAX_UPLOAD_PAGES })}</span>
             </label>
             <input
               id="pdf-file"
@@ -216,23 +216,23 @@ export default function NewDocumentPage() {
 
         <Card className="space-y-5 p-5 sm:p-7">
           <div className="flex items-start gap-3">
-            <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-accent-soft text-sm font-medium text-accent-soft-foreground">2</span>
+            <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-secondary-container text-title-small text-on-secondary-container">2</span>
             <div>
-              <h2 className="text-lg">{t("newDocument.stepRecipients")}</h2>
-              <p className="mt-1 text-sm text-muted">Recipients are saved in signing order. Email is not sent when a draft is created.</p>
+              <h2 className="text-title-medium">{t("newDocument.stepRecipients")}</h2>
+              <p className="mt-1 text-body-medium text-on-surface-variant">Recipients are saved in signing order. Email is not sent when a draft is created.</p>
             </div>
           </div>
           {recipients.map((recipient, index) => (
-            <div key={index} className="rounded-3xl border border-border/80 p-4 sm:p-5">
+            <div key={index} className="rounded-md border border-outline-variant p-4 sm:p-5">
               <div className="mb-4 flex items-center justify-between gap-3">
-                <p className="flex items-center gap-2 text-sm font-medium">
-                  <span className="inline-flex size-6 items-center justify-center rounded-full bg-surface-strong text-xs">{index + 1}</span>
+                <p className="flex items-center gap-2 text-title-small">
+                  <span className="inline-flex size-6 items-center justify-center rounded-full bg-surface-container-highest text-body-small">{index + 1}</span>
                   {recipient.name.trim() || `Recipient ${index + 1}`}
                 </p>
                 {recipients.length > 1 && (
                   <IconButton
                     label={t("common.remove")}
-                    className="-my-2 -mr-2 hover:text-danger"
+                    className="-my-2 -mr-2 hover:text-error"
                     onClick={() => setRecipients((current) => current.filter((_, i) => i !== index))}
                   >
                     <Icon name="trash" className="size-[18px]" />
@@ -264,7 +264,7 @@ export default function NewDocumentPage() {
           </Button>
         </Card>
 
-        <div className="sticky bottom-0 -mx-4 flex flex-col-reverse gap-2 bg-background/90 px-4 py-3 backdrop-blur-md sm:static sm:mx-0 sm:flex-row sm:justify-end sm:bg-transparent sm:px-0 sm:backdrop-blur-none">
+        <div className="sticky bottom-[calc(5rem+env(safe-area-inset-bottom))] -mx-4 flex flex-col-reverse gap-2 bg-surface-container px-4 py-3 sm:static sm:mx-0 sm:flex-row sm:justify-end sm:bg-transparent sm:px-0">
           <ButtonLink href="/documents" variant="secondary" size="lg">{t("common.cancel")}</ButtonLink>
           <Button type="submit" variant="primary" size="lg" disabled={saving || !ready}>{saving ? t("common.loading") : t("newDocument.saveDraft")}</Button>
         </div>

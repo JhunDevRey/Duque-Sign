@@ -36,15 +36,15 @@ export function Dialog({
     <dialog
       ref={ref}
       onClose={onClose}
-      className="mx-auto mt-auto mb-0 max-h-[92dvh] w-full max-w-none overflow-y-auto rounded-t-[28px] bg-surface p-0 text-foreground shadow-elevation-2 backdrop:bg-black/45 backdrop:backdrop-blur-[2px] sm:m-auto sm:w-[calc(100%-2rem)] sm:max-w-lg sm:rounded-[28px]"
+      className="mx-auto mt-auto mb-0 max-h-[92dvh] w-full max-w-none overflow-y-auto rounded-t-2xl bg-surface-container-low p-0 text-on-surface shadow-elevation-1 backdrop:bg-scrim/32 sm:m-auto sm:w-[calc(100%-3rem)] sm:max-w-[560px] sm:rounded-2xl sm:bg-surface-container-high sm:shadow-elevation-3"
     >
-      <div className="mx-auto mt-3 h-1 w-9 rounded-full bg-border sm:hidden" aria-hidden="true" />
+      <div className="mx-auto mt-4 h-1 w-8 rounded-full bg-on-surface-variant/40 sm:hidden" aria-hidden="true" />
       <div className="flex items-start justify-between gap-3 px-6 pt-4 sm:pt-6">
-        <h2 className="pt-1.5 text-xl leading-snug">{title}</h2>
+        <h2 className="pt-1 text-headline-small">{title}</h2>
         <button
           type="button"
           onClick={onClose}
-          className="-mr-2 inline-flex size-10 shrink-0 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface-muted hover:text-foreground"
+          className="state-layer -mr-2 inline-flex size-10 shrink-0 items-center justify-center rounded-full text-on-surface-variant"
           aria-label={t("common.close")}
         >
           <Icon name="close" />

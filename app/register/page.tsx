@@ -66,7 +66,7 @@ export default function RegisterPage() {
           <Notice tone="success" title="Check your inbox">
             We sent an email verification link to {email}. Verify your address, then sign in to create your organization.
           </Notice>
-          <Link href="/login" className="mt-5 inline-flex text-sm font-medium text-accent underline-offset-4 hover:underline">Go to sign in</Link>
+          <Link href="/login" className="mt-5 inline-flex text-title-small text-primary underline-offset-4 hover:underline">Go to sign in</Link>
         </>
       ) : (
         <>
@@ -78,8 +78,8 @@ export default function RegisterPage() {
             <Field label="Confirm password" htmlFor="confirmation"><Input id="confirmation" type="password" autoComplete="new-password" required minLength={12} value={confirmation} onChange={(event) => setConfirmation(event.target.value)} /></Field>
             <Button type="submit" variant="primary" size="lg" disabled={submitting} className="w-full">{submitting ? "Creating account…" : "Create account"}</Button>
           </form>
-          <p className="mt-5 text-center text-sm text-muted">
-            Already have an account? <Link href="/login" className="font-medium text-accent underline-offset-4 hover:underline">Sign in</Link>
+          <p className="mt-5 text-center text-body-medium text-on-surface-variant">
+            Already have an account? <Link href="/login" className="font-medium text-primary underline-offset-4 hover:underline">Sign in</Link>
           </p>
         </>
       )}

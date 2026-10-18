@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import { SignaturePad } from "@/components/signing/signature-pad";
-import { Button } from "@/components/ui/button";
+import { Button, buttonClass } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Checkbox, Textarea } from "@/components/ui/form";
 import { BrandMark, Icon, type IconName } from "@/components/ui/icons";
@@ -38,15 +38,15 @@ const fieldNames: Record<SigningField["type"], string> = {
 
 function Shell({ children, title }: { children: React.ReactNode; title?: string }) {
   return (
-    <div className="flex min-h-dvh flex-col bg-background">
-      <header className="sticky top-0 z-30 border-b border-border/60 bg-background/85 backdrop-blur-md">
+    <div className="flex min-h-dvh flex-col bg-surface">
+      <header className="sticky top-0 z-30 bg-surface-container">
         <div className="mx-auto flex h-16 max-w-5xl items-center gap-3 px-4">
-          <BrandMark className="size-7" />
+          <BrandMark className="size-8" />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-base leading-tight">{title ?? APP_NAME}</p>
-            {title && <p className="truncate text-xs text-muted">{APP_NAME}</p>}
+            <p className="truncate text-title-medium">{title ?? APP_NAME}</p>
+            {title && <p className="truncate text-body-small text-on-surface-variant">{APP_NAME}</p>}
           </div>
-          <span className="hidden items-center gap-1.5 rounded-full bg-success-soft px-3 py-1.5 text-xs font-medium text-success sm:inline-flex">
+          <span className="hidden h-8 items-center gap-2 rounded-sm bg-success-container px-3 text-label-large text-on-success-container sm:inline-flex">
             <Icon name="shield" className="size-4" />
             Secure signing
           </span>
@@ -59,19 +59,19 @@ function Shell({ children, title }: { children: React.ReactNode; title?: string 
 
 function StatusScreen({ icon, tone, title, children }: { icon: IconName; tone: "success" | "warning" | "danger" | "accent"; title: string; children: React.ReactNode }) {
   const tones = {
-    success: "bg-success-soft text-success",
-    warning: "bg-warning-soft text-warning",
-    danger: "bg-danger-soft text-danger",
-    accent: "bg-accent-soft text-accent-soft-foreground",
+    success: "bg-success-container text-on-success-container",
+    warning: "bg-warning-container text-on-warning-container",
+    danger: "bg-error-container text-on-error-container",
+    accent: "bg-secondary-container text-on-secondary-container",
   };
   return (
-    <main className="brand-glow flex flex-1 items-center justify-center px-4 py-12">
+    <main className="flex flex-1 items-center justify-center bg-surface-container-low px-4 py-12">
       <div className="animate-rise w-full max-w-md text-center">
         <span className={cn("mx-auto inline-flex size-16 items-center justify-center rounded-full", tones[tone])}>
           <Icon name={icon} className="size-8" />
         </span>
-        <h1 className="mt-6 text-3xl tracking-tight">{title}</h1>
-        <div className="mt-3 space-y-4 text-muted">{children}</div>
+        <h1 className="mt-6 text-headline-medium">{title}</h1>
+        <div className="mt-3 space-y-4 text-on-surface-variant">{children}</div>
       </div>
     </main>
   );
@@ -166,9 +166,9 @@ function PdfPages({
 
   return (
     <div ref={containerRef} className="mx-auto w-full max-w-[860px] space-y-4">
-      {!pdf && <div className="aspect-[8.5/11] w-full animate-pulse rounded-lg bg-surface-muted" />}
+      {!pdf && <div className="aspect-[8.5/11] w-full animate-pulse rounded-sm bg-surface-container-high" />}
       {pdf && sizes.map((size, index) => (
-        <div key={index} className="pdf-page relative overflow-hidden rounded-sm" style={{ width: size.width, height: size.height }}>
+        <div key={index} className="pdf-page relative overflow-hidden rounded-xs" style={{ width: size.width, height: size.height }}>
           <canvas ref={(element) => { canvases.current[index] = element; }} className="absolute inset-0 size-full" />
           {overlay(index + 1)}
         </div>
@@ -302,8 +302,8 @@ export default function SignPage() {
   if (!session) {
     return (
       <Shell>
-        <main className="flex flex-1 flex-col items-center justify-center gap-4 text-sm text-muted" role="status">
-          <span className="brand-mark size-10 animate-pulse" aria-hidden="true" />
+        <main className="flex flex-1 flex-col items-center justify-center gap-4 text-body-medium text-on-surface-variant" role="status">
+          <span className="size-12 animate-spin rounded-full border-4 border-secondary-container border-t-primary" aria-hidden="true" />
           Opening your document…
         </main>
       </Shell>
@@ -315,7 +315,7 @@ export default function SignPage() {
   const downloadLink = (
     <a
       href={`${apiBase}/pdf?download=1`}
-      className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-accent px-6 text-sm font-medium text-accent-foreground hover:brightness-110"
+      className={buttonClass("primary", "md")}
     >
       <Icon name="download" className="size-[18px]" />
       Download signed PDF
@@ -326,7 +326,7 @@ export default function SignPage() {
     return (
       <Shell title={doc.title}>
         <StatusScreen icon="check" tone="success" title="All signed">
-          <p>Everyone has signed <span className="text-foreground">{doc.title}</span>. The final PDF includes a signing certificate.</p>
+          <p>Everyone has signed <span className="text-on-surface">{doc.title}</span>. The final PDF includes a signing certificate.</p>
           {(result === "completed" || doc.hasFinalPdf) && <div className="pt-2">{downloadLink}</div>}
         </StatusScreen>
       </Shell>
@@ -336,8 +336,8 @@ export default function SignPage() {
     return (
       <Shell title={doc.title}>
         <StatusScreen icon="check" tone="success" title={`Thanks, ${firstName}`}>
-          <p>Your signature on <span className="text-foreground">{doc.title}</span> is saved.</p>
-          <p className="text-sm">You can open this link again later to download the final PDF once everyone has signed.</p>
+          <p>Your signature on <span className="text-on-surface">{doc.title}</span> is saved.</p>
+          <p className="text-body-medium">You can open this link again later to download the final PDF once everyone has signed.</p>
         </StatusScreen>
       </Shell>
     );
@@ -375,42 +375,42 @@ export default function SignPage() {
   if (!started) {
     return (
       <Shell title={doc.title}>
-        <main className="brand-glow flex flex-1 items-start justify-center px-4 py-8 sm:items-center sm:py-12">
+        <main className="flex flex-1 items-start justify-center bg-surface-container-low px-4 py-8 sm:items-center sm:py-12">
           <div className="animate-rise w-full max-w-lg">
-            <h1 className="text-[32px] leading-tight tracking-tight sm:text-4xl">
-              <span className="text-gradient">Hi {firstName},</span>
+            <h1 className="text-headline-large sm:text-display-small">
+              Hi {firstName},
             </h1>
-            <p className="mt-3 text-lg text-muted">
+            <p className="mt-3 text-title-medium text-on-surface-variant">
               {waiting ? "This document is on its way to you." : "You've been asked to review and sign a document."}
             </p>
 
-            <div className="mt-8 rounded-[28px] bg-surface p-5 shadow-elevation-1 sm:p-6">
+            <div className="mt-8 rounded-2xl bg-surface p-5 sm:p-6">
               <div className="flex items-start gap-4">
-                <span className="inline-flex size-12 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent-soft-foreground">
+                <span className="inline-flex size-12 shrink-0 items-center justify-center rounded-lg bg-secondary-container text-on-secondary-container">
                   <Icon name="document" className="size-6" />
                 </span>
                 <div className="min-w-0">
-                  <p className="text-lg leading-snug">{doc.title}</p>
-                  <p className="mt-1 text-sm text-muted">
+                  <p className="text-title-large">{doc.title}</p>
+                  <p className="mt-1 text-body-medium text-on-surface-variant">
                     {doc.pageCount} {doc.pageCount === 1 ? "page" : "pages"}
                     {fields.length > 0 && ` · ${fields.length} ${fields.length === 1 ? "field" : "fields"} for you`}
                   </p>
-                  {doc.expiresAt && <p className="mt-0.5 text-xs text-muted">Sign by {formatDateTime(doc.expiresAt)}</p>}
+                  {doc.expiresAt && <p className="mt-0.5 text-body-small text-on-surface-variant">Sign by {formatDateTime(doc.expiresAt)}</p>}
                 </div>
               </div>
 
               {session.signers.length > 1 && (
-                <ol className="mt-5 space-y-2 border-t border-border/60 pt-5">
+                <ol className="mt-5 space-y-2 border-t border-outline-variant pt-5">
                   {session.signers.map((signer) => (
-                    <li key={`${signer.order}-${signer.name}`} className="flex items-center gap-3 text-sm">
+                    <li key={`${signer.order}-${signer.name}`} className="flex items-center gap-3 text-body-medium">
                       <span className={cn(
-                        "inline-flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-medium",
-                        signer.status === "signed" ? "bg-success-soft text-success" : signer.isYou ? "bg-accent-soft text-accent-soft-foreground" : "bg-surface-muted text-muted",
+                        "inline-flex size-7 shrink-0 items-center justify-center rounded-full text-body-small font-medium",
+                        signer.status === "signed" ? "bg-success-container text-on-success-container" : signer.isYou ? "bg-secondary-container text-on-secondary-container" : "bg-surface-container-high text-on-surface-variant",
                       )}>
                         {signer.status === "signed" ? <Icon name="check" className="size-4" /> : signer.order}
                       </span>
                       <span className={cn("min-w-0 flex-1 truncate", signer.isYou && "font-medium")}>{signer.isYou ? `${signer.name} (you)` : signer.name}</span>
-                      <span className="text-xs text-muted">{signer.status === "signed" ? "Signed" : signer.isYou ? "Your turn" : "Waiting"}</span>
+                      <span className="text-body-small text-on-surface-variant">{signer.status === "signed" ? "Signed" : signer.isYou ? "Your turn" : "Waiting"}</span>
                     </li>
                   ))}
                 </ol>
@@ -421,12 +421,12 @@ export default function SignPage() {
                   You can review the document now. Signing opens once the people before you have signed.
                 </Notice>
               ) : (
-                <div className="mt-5 rounded-2xl bg-surface-muted p-4">
+                <div className="mt-5 rounded-md bg-surface-container p-4">
                   <Checkbox
                     checked={consent}
                     onChange={(event) => setConsent(event.target.checked)}
                     label={
-                      <span className="text-sm">
+                      <span className="text-body-medium">
                         I agree to use electronic records and signatures for this document, and that my electronic
                         signature is the legal equivalent of my handwritten signature.
                       </span>
@@ -440,12 +440,12 @@ export default function SignPage() {
                   {waiting ? "Review document" : "Continue"}
                   <Icon name="chevronRight" className="size-[18px]" />
                 </Button>
-                <Button variant="ghost" size="lg" onClick={() => setDeclining(true)} className="text-danger hover:bg-danger-soft">
+                <Button variant="ghost" size="lg" onClick={() => setDeclining(true)} className="text-error">
                   Decline
                 </Button>
               </div>
             </div>
-            <p className="mt-4 flex items-center justify-center gap-1.5 text-center text-xs text-muted">
+            <p className="mt-4 flex items-center justify-center gap-1.5 text-center text-body-small text-on-surface-variant">
               <Icon name="shield" className="size-4" />
               Sent to {recipient.email}. Your views and signature are recorded in an audit log.
             </p>
@@ -466,18 +466,18 @@ export default function SignPage() {
 
   return (
     <Shell title={doc.title}>
-      <div className="sticky top-16 z-20 border-b border-border/60 bg-background/90 backdrop-blur-md">
+      <div className="sticky top-16 z-20 border-b border-outline-variant bg-surface-container">
         <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-2.5">
           {waiting ? (
-            <p className="flex-1 text-sm text-muted">Review only — signing opens after earlier signers finish.</p>
+            <p className="flex-1 text-body-medium text-on-surface-variant">Review only — signing opens after earlier signers finish.</p>
           ) : (
             <>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium">{allDone ? "Ready to finish" : `${completedRequired} of ${required.length} required fields`}</p>
-                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-surface-muted">
+                <p className="text-title-small">{allDone ? "Ready to finish" : `${completedRequired} of ${required.length} required fields`}</p>
+                <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-secondary-container">
                   <div
-                    className="h-full rounded-full transition-[width] duration-500"
-                    style={{ width: `${required.length ? (completedRequired / required.length) * 100 : 100}%`, background: "var(--brand-gradient)" }}
+                    className="h-full rounded-full bg-primary transition-[width] duration-500 ease-emphasized"
+                    style={{ width: `${required.length ? (completedRequired / required.length) * 100 : 100}%` }}
                   />
                 </div>
               </div>
@@ -509,12 +509,12 @@ export default function SignPage() {
                 onClick={() => activate(field)}
                 aria-label={`${fieldNames[field.type]}${field.label ? `: ${field.label}` : ""}${field.required ? " (required)" : ""}${filled ? ", completed" : ""}`}
                 className={cn(
-                  "absolute flex items-center justify-center overflow-hidden rounded-md border-2 text-[#041e49] transition-[background-color,box-shadow]",
+                  "absolute flex items-center justify-center overflow-hidden rounded-xs border-2 text-on-pdf-field-container transition-[background-color,box-shadow]",
                   filled
-                    ? "border-transparent bg-transparent hover:border-[#0b57d0]/50"
+                    ? "border-transparent bg-transparent hover:border-pdf-field/50"
                     : field.required
-                      ? "animate-pulse border-[#0b57d0] bg-[#d3e3fd]/80 shadow-[0_0_0_4px_rgb(11_87_208/0.15)] hover:animate-none"
-                      : "border-dashed border-[#0b57d0]/60 bg-[#d3e3fd]/45",
+                      ? "animate-pulse border-pdf-field bg-pdf-field-container/80 shadow-[0_0_0_4px_rgb(34_100_136/0.15)] hover:animate-none"
+                      : "border-dashed border-pdf-field/60 bg-pdf-field-container/45",
                   waiting && "cursor-default opacity-60",
                 )}
                 style={{ left: `${field.x * 100}%`, top: `${field.y * 100}%`, width: `${field.w * 100}%`, height: `${field.h * 100}%` }}
@@ -523,9 +523,9 @@ export default function SignPage() {
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={value} alt="" className="size-full object-contain" />
                 ) : filled && field.type === "checkbox" ? (
-                  <Icon name="check" className="size-[80%] text-[#1f1f1f]" />
+                  <Icon name="check" className="size-[80%] text-pdf-ink" />
                 ) : filled ? (
-                  <span className="truncate px-1 text-[clamp(8px,1.6vw,14px)] text-[#1f1f1f]">{value}</span>
+                  <span className="truncate px-1 text-[clamp(8px,1.6vw,14px)] text-pdf-ink">{value}</span>
                 ) : field.type === "checkbox" ? (
                   <span className="sr-only">{fieldNames.checkbox}</span>
                 ) : (
@@ -542,17 +542,17 @@ export default function SignPage() {
       </main>
 
       {!waiting && (
-        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border/60 bg-surface/95 backdrop-blur-md">
+        <div className="fixed inset-x-0 bottom-0 z-30 bg-surface-container shadow-elevation-2">
           <div className="mx-auto flex max-w-5xl flex-col gap-2 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:flex-row sm:items-center">
             {actionError ? (
-              <p role="alert" className="flex-1 text-sm text-danger">{actionError}</p>
+              <p role="alert" className="flex-1 text-body-medium text-error">{actionError}</p>
             ) : (
-              <p className="hidden flex-1 text-sm text-muted sm:block">
+              <p className="hidden flex-1 text-body-medium text-on-surface-variant sm:block">
                 {allDone ? "All set. Finish to sign the document." : "Tap each highlighted field to fill it in."}
               </p>
             )}
             <div className="flex gap-2">
-              <Button variant="ghost" onClick={() => setDeclining(true)} className="text-danger hover:bg-danger-soft">Decline</Button>
+              <Button variant="ghost" onClick={() => setDeclining(true)} className="text-error">Decline</Button>
               <Button variant="primary" size="lg" className="flex-1 sm:flex-none" disabled={!allDone || submitting} onClick={submit}>
                 <Icon name="check" className="size-[18px]" />
                 {submitting ? "Signing…" : "Finish signing"}
@@ -628,7 +628,7 @@ function DeclineDialog({
   return (
     <Dialog open={open} onClose={onClose} title="Decline to sign?">
       <div className="space-y-4">
-        <p className="text-sm text-muted">The sender will see that you declined. Signing links for everyone on this document will stop working.</p>
+        <p className="text-body-medium text-on-surface-variant">The sender will see that you declined. Signing links for everyone on this document will stop working.</p>
         <Textarea
           aria-label="Reason (optional)"
           placeholder="Reason (optional)"

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type PointerEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/form";
+import { Icon } from "@/components/ui/icons";
 import { cn } from "@/lib/cn";
 
 const INK = "#0b1f4b";
@@ -134,7 +135,7 @@ export function SignaturePad({
   return (
     <Dialog open={open} onClose={onClose} title={title}>
       <div className="space-y-4">
-        <div role="tablist" aria-label="Signature method" className="grid grid-cols-2 gap-1 rounded-full bg-surface-muted p-1">
+        <div role="tablist" aria-label="Signature method" className="grid grid-cols-2 overflow-hidden rounded-full border border-outline">
           {(["type", "draw"] as const).map((option) => (
             <button
               key={option}
@@ -143,10 +144,11 @@ export function SignaturePad({
               aria-selected={mode === option}
               onClick={() => { setMode(option); setError(null); }}
               className={cn(
-                "h-10 rounded-full text-sm font-medium transition-colors",
-                mode === option ? "bg-surface text-foreground shadow-elevation-1" : "text-muted hover:text-foreground",
+                "state-layer inline-flex h-10 items-center justify-center gap-2 text-label-large transition-colors duration-200 not-first:border-l not-first:border-outline",
+                mode === option ? "bg-secondary-container text-on-secondary-container" : "text-on-surface",
               )}
             >
+              {mode === option && <Icon name="check" className="size-[18px]" />}
               {option === "type" ? "Type" : "Draw"}
             </button>
           ))}
@@ -161,13 +163,13 @@ export function SignaturePad({
               onChange={(event) => setTyped(event.target.value)}
               data-autofocus
             />
-            <div className="flex h-32 items-center justify-center overflow-hidden rounded-2xl border border-border bg-white px-4">
+            <div className="flex h-32 items-center justify-center overflow-hidden rounded-sm border border-outline-variant bg-white px-4">
               <span className="truncate font-script text-5xl text-[#0b1f4b]">{typed || " "}</span>
             </div>
           </div>
         ) : (
           <div className="space-y-2">
-            <div className="relative h-44 overflow-hidden rounded-2xl border border-border bg-white">
+            <div className="relative h-44 overflow-hidden rounded-sm border border-outline-variant bg-white">
               <canvas
                 ref={canvasRef}
                 aria-label="Signature drawing area"
@@ -195,9 +197,9 @@ export function SignaturePad({
                 onPointerUp={() => { drawing.current = null; }}
                 onPointerCancel={() => { drawing.current = null; }}
               />
-              <div className="pointer-events-none absolute inset-x-6 bottom-10 border-b border-dashed border-[#c4c7c5]" />
+              <div className="pointer-events-none absolute inset-x-6 bottom-10 border-b border-dashed border-[#c1c7ce]" />
               {!hasInk && (
-                <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-sm text-[#747775]">
+                <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-body-medium text-[#71787e]">
                   Sign here with your finger or mouse
                 </span>
               )}
@@ -208,8 +210,8 @@ export function SignaturePad({
           </div>
         )}
 
-        {error && <p role="alert" className="text-sm text-danger">{error}</p>}
-        <p className="text-xs text-muted">
+        {error && <p role="alert" className="text-body-medium text-error">{error}</p>}
+        <p className="text-body-small text-on-surface-variant">
           By selecting Adopt, you agree this mark is your electronic {kind === "initials" ? "initials" : "signature"} for this document.
         </p>
         <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">

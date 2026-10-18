@@ -35,12 +35,12 @@ function CopyLink({ url }: { url: string }) {
         value={url}
         aria-label="Signing link"
         onFocus={(event) => event.currentTarget.select()}
-        className="h-11 min-w-0 flex-1 rounded-2xl bg-surface px-4 font-mono text-xs focus:outline-none focus:ring-4 focus:ring-accent/15"
+        className="h-10 min-w-0 flex-1 rounded-xs border border-outline-variant bg-surface px-3 font-mono text-body-small focus:border-primary focus:outline-none"
       />
       <Button
         size="sm"
         variant="secondary"
-        className="h-11 shrink-0"
+        className="shrink-0"
         onClick={async () => {
           try {
             await navigator.clipboard.writeText(url);
@@ -107,7 +107,7 @@ export function SendDocumentButton({
           {missing.length > 0 ? (
             <Notice tone="warning">{t("documents.sendMissingSignature", { names: missing.map((recipient) => recipient.name).join(", ") })}</Notice>
           ) : (
-            <p className="text-sm text-muted">{t("documents.sendConfirmBody", { days: SIGNING_LINK_TTL_DAYS })}</p>
+            <p className="text-body-medium text-on-surface-variant">{t("documents.sendConfirmBody", { days: SIGNING_LINK_TTL_DAYS })}</p>
           )}
           {error && <Notice tone="danger">{error}</Notice>}
           <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
@@ -124,14 +124,14 @@ export function SendDocumentButton({
           <Notice tone="warning">{t("documents.linksOnce")}</Notice>
           {links?.some((link) => link.delivery === "email") && <Notice>{t("documents.linksManualDelivery")}</Notice>}
           {links && new Set(document.recipients.map((recipient) => recipient.order)).size > 1 && (
-            <p className="text-sm text-muted">{t("documents.linksSequential")}</p>
+            <p className="text-body-medium text-on-surface-variant">{t("documents.linksSequential")}</p>
           )}
           <ul className="space-y-3">
             {links?.map((link) => (
-              <li key={link.recipientId} className="space-y-2 rounded-2xl bg-surface-muted p-4">
+              <li key={link.recipientId} className="space-y-2 rounded-md bg-surface-container p-4">
                 <div>
-                  <p className="font-medium">{link.name}</p>
-                  <p className="break-all text-sm text-muted">{link.email}</p>
+                  <p className="text-title-medium">{link.name}</p>
+                  <p className="break-all text-body-medium text-on-surface-variant">{link.email}</p>
                 </div>
                 <CopyLink url={link.url} />
               </li>
@@ -165,14 +165,14 @@ export function SignedPdfCard({
 
   if (document.status === "completed") {
     return (
-      <div className="rounded-3xl bg-success-soft p-5 sm:p-6">
+      <div className="rounded-md bg-success-container p-5 text-on-success-container sm:p-6">
         <div className="flex items-center gap-3">
-          <span className="inline-flex size-10 items-center justify-center rounded-full bg-surface/70 text-success">
+          <span className="inline-flex size-10 items-center justify-center rounded-full bg-success text-on-success">
             <Icon name="check" />
           </span>
-          <p className="font-medium">{t("documents.downloadFinal")}</p>
+          <p className="text-title-medium">{t("documents.downloadFinal")}</p>
         </div>
-        <p className="mt-3 text-sm text-foreground/80">Includes every signature and a signing certificate page.</p>
+        <p className="mt-3 text-body-medium opacity-90">Includes every signature and a signing certificate page.</p>
         <a
           href={`/api/documents/${encodeURIComponent(document.id)}/signed?organizationId=${encodeURIComponent(organizationId)}`}
           className={buttonClass("primary", "md", "mt-4 w-full")}
@@ -199,10 +199,10 @@ export function SignedPdfCard({
   }
 
   return (
-    <div className="rounded-3xl bg-warning-soft p-5 sm:p-6">
-      <p className="font-medium">Everyone has signed</p>
-      <p className="mt-2 text-sm text-foreground/80">The signed PDF wasn&apos;t generated yet. Generate it now to complete the document.</p>
-      {error && <p role="alert" className="mt-2 text-sm text-danger">{error}</p>}
+    <div className="rounded-md bg-warning-container p-5 text-on-warning-container sm:p-6">
+      <p className="text-title-medium">Everyone has signed</p>
+      <p className="mt-2 text-body-medium opacity-90">The signed PDF wasn&apos;t generated yet. Generate it now to complete the document.</p>
+      {error && <p role="alert" className="mt-2 text-body-medium text-error">{error}</p>}
       <Button variant="primary" className="mt-4 w-full" onClick={finalize} disabled={working}>
         {working ? "Generating…" : "Generate signed PDF"}
       </Button>
@@ -245,13 +245,13 @@ export function ReissueLinkButton({
   return (
     <>
       <Button size="sm" variant="secondary" onClick={reissue} disabled={working}>{t("documents.newLink")}</Button>
-      {error && <span className="text-xs text-danger">{error}</span>}
+      {error && <span className="text-body-small text-error">{error}</span>}
       <Dialog open={url !== null} onClose={() => setUrl(null)} title={t("documents.newLinkTitle")}>
         <div className="space-y-4">
           <Notice tone="warning">{t("documents.linksOnce")}</Notice>
           <div>
-            <p className="font-medium">{recipient.name}</p>
-            <p className="break-all text-sm text-muted">{recipient.email}</p>
+            <p className="text-title-medium">{recipient.name}</p>
+            <p className="break-all text-body-medium text-on-surface-variant">{recipient.email}</p>
           </div>
           {url && <CopyLink url={url} />}
           <div className="flex justify-end">

@@ -71,12 +71,12 @@ export default function LoginPage() {
             <Field label="Email" htmlFor="email"><Input id="email" type="email" autoComplete="email" required value={email} onChange={(event) => setEmail(event.target.value)} /></Field>
             <Field label="Password" htmlFor="password"><Input id="password" type="password" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} /></Field>
             <div className="flex justify-end">
-              <Link href="/forgot-password" className="text-sm font-medium text-accent underline-offset-4 hover:underline">Forgot password?</Link>
+              <Link href="/forgot-password" className="text-title-small text-primary underline-offset-4 hover:underline">Forgot password?</Link>
             </div>
             <Button type="submit" variant="primary" size="lg" disabled={submitting} className="w-full">{submitting ? "Signing in…" : "Sign in"}</Button>
           </form>
-          <p className="mt-5 text-center text-sm text-muted">
-            Don&apos;t have an account? <Link href="/register" className="font-medium text-accent underline-offset-4 hover:underline">Create an account</Link>
+          <p className="mt-5 text-center text-body-medium text-on-surface-variant">
+            Don&apos;t have an account? <Link href="/register" className="font-medium text-primary underline-offset-4 hover:underline">Create an account</Link>
           </p>
         </>
       )}

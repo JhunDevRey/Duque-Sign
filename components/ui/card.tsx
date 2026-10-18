@@ -1,14 +1,15 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
+/** MD3 outlined card. */
 export function Card({ children, className }: { children: ReactNode; className?: string }) {
-  return <section className={cn("rounded-3xl border border-border/70 bg-surface", className)}>{children}</section>;
+  return <section className={cn("rounded-md border border-outline-variant bg-surface", className)}>{children}</section>;
 }
 
 export function CardHeader({ title, action, className }: { title: string; action?: ReactNode; className?: string }) {
   return (
-    <div className={cn("flex items-center justify-between gap-4 px-5 pt-5 pb-3 sm:px-6", className)}>
-      <h2 className="text-base font-medium">{title}</h2>
+    <div className={cn("flex items-center justify-between gap-4 px-4 pt-4 pb-2 sm:px-6 sm:pt-5", className)}>
+      <h2 className="text-title-medium">{title}</h2>
       {action}
     </div>
   );

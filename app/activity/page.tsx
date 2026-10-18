@@ -20,21 +20,21 @@ export default function ActivityPage() {
         {sampleAuditEvents.map((event) => (
           <Card key={event.id} className="p-4">
             <div className="flex items-start justify-between gap-3">
-              <p className="min-w-0 break-words font-medium">{t(asMessageKey(`auditActions.${event.action}`))}</p>
-              <time dateTime={event.at} className="shrink-0 text-right text-xs text-muted">{formatDateTime(event.at)}</time>
+              <p className="min-w-0 break-words text-title-medium">{t(asMessageKey(`auditActions.${event.action}`))}</p>
+              <time dateTime={event.at} className="shrink-0 text-right text-body-small text-on-surface-variant">{formatDateTime(event.at)}</time>
             </div>
-            <dl className="mt-3 grid gap-3 border-t border-border/60 pt-3 text-sm">
+            <dl className="mt-3 grid gap-3 border-t border-outline-variant pt-3 text-body-medium">
               <div>
-                <dt className="text-xs text-muted">{t("activity.columnActor")}</dt>
+                <dt className="text-body-small text-on-surface-variant">{t("activity.columnActor")}</dt>
                 <dd className="mt-0.5 break-words">{event.actorLabel}</dd>
               </div>
               <div>
-                <dt className="text-xs text-muted">{t("activity.columnDocument")}</dt>
+                <dt className="text-body-small text-on-surface-variant">{t("activity.columnDocument")}</dt>
                 <dd className="mt-0.5 break-words">{event.documentTitle || "—"}</dd>
               </div>
               <div>
-                <dt className="text-xs text-muted">{t("activity.columnIp")}</dt>
-                <dd className="mt-0.5 break-all text-muted">{event.ip || "—"}</dd>
+                <dt className="text-body-small text-on-surface-variant">{t("activity.columnIp")}</dt>
+                <dd className="mt-0.5 break-all text-on-surface-variant">{event.ip || "—"}</dd>
               </div>
             </dl>
           </Card>
@@ -43,8 +43,8 @@ export default function ActivityPage() {
 
       <Card className="overflow-hidden">
         <div className="hidden overflow-x-auto md:block">
-          <table className="min-w-full text-left text-sm">
-            <thead className="border-b border-border/70 text-xs text-muted">
+          <table className="min-w-full text-left text-body-medium">
+            <thead className="border-b border-outline-variant text-label-medium text-on-surface-variant">
               <tr>
                 <th className="px-6 py-3 font-medium">{t("activity.columnTime")}</th>
                 <th className="px-6 py-3 font-medium">{t("activity.columnActor")}</th>
@@ -55,12 +55,12 @@ export default function ActivityPage() {
             </thead>
             <tbody>
               {sampleAuditEvents.map((event) => (
-                <tr key={event.id} className="border-b border-border/50 transition-colors last:border-0 hover:bg-surface-muted">
+                <tr key={event.id} className="border-b border-outline-variant last:border-0">
                   <td className="px-6 py-3.5">{formatDateTime(event.at)}</td>
                   <td className="px-6 py-3.5">{event.actorLabel}</td>
                   <td className="px-6 py-3.5">{t(asMessageKey(`auditActions.${event.action}`))}</td>
                   <td className="px-6 py-3.5">{event.documentTitle || "—"}</td>
-                  <td className="px-6 py-3.5 text-muted">{event.ip || "—"}</td>
+                  <td className="px-6 py-3.5 text-on-surface-variant">{event.ip || "—"}</td>
                 </tr>
               ))}
             </tbody>

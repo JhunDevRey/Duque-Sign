@@ -1,15 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { Caveat, Google_Sans, Google_Sans_Code } from "next/font/google";
+import { Caveat, Roboto_Flex, Roboto_Mono } from "next/font/google";
 import { LocalWorkspaceProvider } from "@/components/local-workspace";
 import "./globals.css";
 
-const googleSans = Google_Sans({
-  variable: "--font-google-sans",
-  subsets: ["latin"],
+// Roboto Flex is Material 3's default typeface.
+const robotoFlex = Roboto_Flex({
+  variable: "--font-roboto-flex",
+  subsets: ["latin", "latin-ext"],
 });
 
-const googleSansCode = Google_Sans_Code({
-  variable: "--font-google-sans-code",
+const robotoMono = Roboto_Mono({
+  variable: "--font-roboto-mono",
   subsets: ["latin"],
 });
 
@@ -26,8 +27,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f8fafd" },
-    { media: "(prefers-color-scheme: dark)", color: "#131314" },
+    { media: "(prefers-color-scheme: light)", color: "#f6fafe" },
+    { media: "(prefers-color-scheme: dark)", color: "#101417" },
   ],
 };
 
@@ -35,7 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${googleSans.variable} ${googleSansCode.variable} ${signature.variable} h-full antialiased`}
+      className={`${robotoFlex.variable} ${robotoMono.variable} ${signature.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
         <LocalWorkspaceProvider>{children}</LocalWorkspaceProvider>

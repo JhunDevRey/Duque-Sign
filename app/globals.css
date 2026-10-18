@@ -1,88 +1,239 @@
 @import "tailwindcss";
 
 /*
- * Gemini-inspired design tokens: tonal Material 3 surfaces, pill controls, and the
- * blue → violet → rose brand gradient. Token names are shared by every component, so
- * pages pick up the theme without per-page colors.
+ * Material Design 3 theme.
+ *
+ * Color roles are a Tonal Spot scheme generated with @material/material-color-utilities from
+ * the seed #1B6B93 (the same algorithm as Material Theme Builder). Success and warning are MD3
+ * custom colors harmonized to that seed. To re-theme, regenerate both schemes from a new seed
+ * and replace the --md-sys-color-* / --md-ext-color-* values below; components only use roles.
  */
 :root {
-  --background: #f8fafd;
-  --surface: #ffffff;
-  --surface-muted: #f0f4f9;
-  --surface-strong: #e3e9f2;
-  --border: #dde3ea;
-  --foreground: #1f1f1f;
-  --muted: #5e6268;
-  --accent: #0b57d0;
-  --accent-foreground: #ffffff;
-  --accent-soft: #d3e3fd;
-  --accent-soft-foreground: #041e49;
-  --danger: #b3261e;
-  --danger-soft: #fce8e6;
-  --success: #146c2e;
-  --success-soft: #ddf4e4;
-  --warning: #8f4c00;
-  --warning-soft: #fff0d9;
-  --brand-gradient: linear-gradient(110deg, #4285f4 0%, #9b72cb 55%, #d96570 100%);
-  --page-shadow: 0 1px 3px rgb(60 64 67 / 0.16), 0 4px 12px rgb(60 64 67 / 0.08);
-  --elevation-1: 0 1px 2px rgb(60 64 67 / 0.12), 0 1px 3px 1px rgb(60 64 67 / 0.08);
-  --elevation-2: 0 1px 2px rgb(60 64 67 / 0.14), 0 2px 8px 2px rgb(60 64 67 / 0.1);
+  color-scheme: light;
+
+  --md-sys-color-primary: #226488;
+  --md-sys-color-on-primary: #ffffff;
+  --md-sys-color-primary-container: #c7e7ff;
+  --md-sys-color-on-primary-container: #004c6c;
+  --md-sys-color-secondary: #4f616e;
+  --md-sys-color-on-secondary: #ffffff;
+  --md-sys-color-secondary-container: #d2e5f5;
+  --md-sys-color-on-secondary-container: #374955;
+  --md-sys-color-tertiary: #63597c;
+  --md-sys-color-on-tertiary: #ffffff;
+  --md-sys-color-tertiary-container: #e8ddff;
+  --md-sys-color-on-tertiary-container: #4b4263;
+  --md-sys-color-error: #ba1a1a;
+  --md-sys-color-on-error: #ffffff;
+  --md-sys-color-error-container: #ffdad6;
+  --md-sys-color-on-error-container: #93000a;
+  --md-sys-color-surface: #f6fafe;
+  --md-sys-color-on-surface: #181c20;
+  --md-sys-color-on-surface-variant: #41484d;
+  --md-sys-color-surface-dim: #d7dadf;
+  --md-sys-color-surface-bright: #f6fafe;
+  --md-sys-color-surface-container-lowest: #ffffff;
+  --md-sys-color-surface-container-low: #f1f4f9;
+  --md-sys-color-surface-container: #ebeef3;
+  --md-sys-color-surface-container-high: #e5e8ed;
+  --md-sys-color-surface-container-highest: #dfe3e7;
+  --md-sys-color-inverse-surface: #2d3135;
+  --md-sys-color-inverse-on-surface: #eef1f6;
+  --md-sys-color-inverse-primary: #93cdf6;
+  --md-sys-color-outline: #71787e;
+  --md-sys-color-outline-variant: #c1c7ce;
+  --md-sys-color-scrim: #000000;
+  --md-sys-color-shadow: #000000;
+
+  --md-ext-color-success: #006d43;
+  --md-ext-color-on-success: #ffffff;
+  --md-ext-color-success-container: #92f7bc;
+  --md-ext-color-on-success-container: #002111;
+  --md-ext-color-warning: #7d5700;
+  --md-ext-color-on-warning: #ffffff;
+  --md-ext-color-warning-container: #ffdeaa;
+  --md-ext-color-on-warning-container: #271900;
+
+  /* Elevation levels 1–3 (shadow is a secondary cue; surfaces carry tone). */
+  --md-sys-elevation-level1: 0 1px 2px rgb(0 0 0 / 0.3), 0 1px 3px 1px rgb(0 0 0 / 0.15);
+  --md-sys-elevation-level2: 0 1px 2px rgb(0 0 0 / 0.3), 0 2px 6px 2px rgb(0 0 0 / 0.15);
+  --md-sys-elevation-level3: 0 1px 3px rgb(0 0 0 / 0.3), 0 4px 8px 3px rgb(0 0 0 / 0.15);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #131314;
-    --surface: #1e1f20;
-    --surface-muted: #282a2c;
-    --surface-strong: #333537;
-    --border: #3c4043;
-    --foreground: #e3e3e3;
-    --muted: #a8adb3;
-    --accent: #a8c7fa;
-    --accent-foreground: #062e6f;
-    --accent-soft: #0b3a78;
-    --accent-soft-foreground: #d3e3fd;
-    --danger: #f2b8b5;
-    --danger-soft: #4a1512;
-    --success: #6dd58c;
-    --success-soft: #0f3a1c;
-    --warning: #ffb95c;
-    --warning-soft: #3d2600;
-    --page-shadow: 0 1px 3px rgb(0 0 0 / 0.6);
-    --elevation-1: 0 1px 2px rgb(0 0 0 / 0.5), 0 1px 3px 1px rgb(0 0 0 / 0.3);
-    --elevation-2: 0 2px 4px rgb(0 0 0 / 0.5), 0 4px 12px 2px rgb(0 0 0 / 0.35);
+    color-scheme: dark;
+
+    --md-sys-color-primary: #93cdf6;
+    --md-sys-color-on-primary: #00344c;
+    --md-sys-color-primary-container: #004c6c;
+    --md-sys-color-on-primary-container: #c7e7ff;
+    --md-sys-color-secondary: #b6c9d8;
+    --md-sys-color-on-secondary: #21323e;
+    --md-sys-color-secondary-container: #374955;
+    --md-sys-color-on-secondary-container: #d2e5f5;
+    --md-sys-color-tertiary: #cdc0e9;
+    --md-sys-color-on-tertiary: #342b4b;
+    --md-sys-color-tertiary-container: #4b4263;
+    --md-sys-color-on-tertiary-container: #e8ddff;
+    --md-sys-color-error: #ffb4ab;
+    --md-sys-color-on-error: #690005;
+    --md-sys-color-error-container: #93000a;
+    --md-sys-color-on-error-container: #ffdad6;
+    --md-sys-color-surface: #101417;
+    --md-sys-color-on-surface: #dfe3e7;
+    --md-sys-color-on-surface-variant: #c1c7ce;
+    --md-sys-color-surface-dim: #101417;
+    --md-sys-color-surface-bright: #353a3d;
+    --md-sys-color-surface-container-lowest: #0a0f12;
+    --md-sys-color-surface-container-low: #181c20;
+    --md-sys-color-surface-container: #1c2024;
+    --md-sys-color-surface-container-high: #262a2e;
+    --md-sys-color-surface-container-highest: #313539;
+    --md-sys-color-inverse-surface: #dfe3e7;
+    --md-sys-color-inverse-on-surface: #2d3135;
+    --md-sys-color-inverse-primary: #226488;
+    --md-sys-color-outline: #8b9198;
+    --md-sys-color-outline-variant: #41484d;
+
+    --md-ext-color-success: #76daa1;
+    --md-ext-color-on-success: #003920;
+    --md-ext-color-success-container: #005231;
+    --md-ext-color-on-success-container: #92f7bc;
+    --md-ext-color-warning: #f9bc49;
+    --md-ext-color-on-warning: #422c00;
+    --md-ext-color-warning-container: #5f4100;
+    --md-ext-color-on-warning-container: #ffdeaa;
   }
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-surface: var(--surface);
-  --color-surface-muted: var(--surface-muted);
-  --color-surface-strong: var(--surface-strong);
-  --color-border: var(--border);
-  --color-foreground: var(--foreground);
-  --color-muted: var(--muted);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent-soft: var(--accent-soft);
-  --color-accent-soft-foreground: var(--accent-soft-foreground);
-  --color-danger: var(--danger);
-  --color-danger-soft: var(--danger-soft);
-  --color-success: var(--success);
-  --color-success-soft: var(--success-soft);
-  --color-warning: var(--warning);
-  --color-warning-soft: var(--warning-soft);
-  --shadow-elevation-1: var(--elevation-1);
-  --shadow-elevation-2: var(--elevation-2);
-  --font-sans: var(--font-google-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-google-sans-code), ui-monospace, monospace;
+  /* Color roles → Tailwind utilities (bg-primary, text-on-surface-variant, …). */
+  --color-primary: var(--md-sys-color-primary);
+  --color-on-primary: var(--md-sys-color-on-primary);
+  --color-primary-container: var(--md-sys-color-primary-container);
+  --color-on-primary-container: var(--md-sys-color-on-primary-container);
+  --color-secondary: var(--md-sys-color-secondary);
+  --color-on-secondary: var(--md-sys-color-on-secondary);
+  --color-secondary-container: var(--md-sys-color-secondary-container);
+  --color-on-secondary-container: var(--md-sys-color-on-secondary-container);
+  --color-tertiary: var(--md-sys-color-tertiary);
+  --color-on-tertiary: var(--md-sys-color-on-tertiary);
+  --color-tertiary-container: var(--md-sys-color-tertiary-container);
+  --color-on-tertiary-container: var(--md-sys-color-on-tertiary-container);
+  --color-error: var(--md-sys-color-error);
+  --color-on-error: var(--md-sys-color-on-error);
+  --color-error-container: var(--md-sys-color-error-container);
+  --color-on-error-container: var(--md-sys-color-on-error-container);
+  --color-surface: var(--md-sys-color-surface);
+  --color-on-surface: var(--md-sys-color-on-surface);
+  --color-on-surface-variant: var(--md-sys-color-on-surface-variant);
+  --color-surface-dim: var(--md-sys-color-surface-dim);
+  --color-surface-bright: var(--md-sys-color-surface-bright);
+  --color-surface-container-lowest: var(--md-sys-color-surface-container-lowest);
+  --color-surface-container-low: var(--md-sys-color-surface-container-low);
+  --color-surface-container: var(--md-sys-color-surface-container);
+  --color-surface-container-high: var(--md-sys-color-surface-container-high);
+  --color-surface-container-highest: var(--md-sys-color-surface-container-highest);
+  --color-inverse-surface: var(--md-sys-color-inverse-surface);
+  --color-inverse-on-surface: var(--md-sys-color-inverse-on-surface);
+  --color-inverse-primary: var(--md-sys-color-inverse-primary);
+  --color-outline: var(--md-sys-color-outline);
+  --color-outline-variant: var(--md-sys-color-outline-variant);
+  --color-scrim: var(--md-sys-color-scrim);
+  --color-success: var(--md-ext-color-success);
+  --color-on-success: var(--md-ext-color-on-success);
+  --color-success-container: var(--md-ext-color-success-container);
+  --color-on-success-container: var(--md-ext-color-on-success-container);
+  --color-warning: var(--md-ext-color-warning);
+  --color-on-warning: var(--md-ext-color-on-warning);
+  --color-warning-container: var(--md-ext-color-warning-container);
+  --color-on-warning-container: var(--md-ext-color-on-warning-container);
+
+  /* Field overlays sit on white PDF pages, so they keep the light-scheme primary roles in both themes. */
+  --color-pdf-field: #226488;
+  --color-pdf-field-container: #c7e7ff;
+  --color-on-pdf-field-container: #004c6c;
+  --color-pdf-ink: #181c20;
+
+  /*
+   * Shape scale. Tailwind's radius keys carry MD3 corner values:
+   * xs = extra-small 4, sm = small 8, md = medium 12, lg = large 16,
+   * xl = large-increased 20, 2xl = extra-large 28, 3xl = extra-large-increased 32,
+   * 4xl = extra-extra-large 48, full = full.
+   */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+  --radius-3xl: 32px;
+  --radius-4xl: 48px;
+
+  /* Type scale (text-display-small, text-headline-medium, text-title-large, text-label-large, …). */
+  --text-display-medium: 2.8125rem;
+  --text-display-medium--line-height: 3.25rem;
+  --text-display-small: 2.25rem;
+  --text-display-small--line-height: 2.75rem;
+  --text-headline-large: 2rem;
+  --text-headline-large--line-height: 2.5rem;
+  --text-headline-medium: 1.75rem;
+  --text-headline-medium--line-height: 2.25rem;
+  --text-headline-small: 1.5rem;
+  --text-headline-small--line-height: 2rem;
+  --text-title-large: 1.375rem;
+  --text-title-large--line-height: 1.75rem;
+  --text-title-medium: 1rem;
+  --text-title-medium--line-height: 1.5rem;
+  --text-title-medium--letter-spacing: 0.009375rem;
+  --text-title-medium--font-weight: 500;
+  --text-title-small: 0.875rem;
+  --text-title-small--line-height: 1.25rem;
+  --text-title-small--letter-spacing: 0.00625rem;
+  --text-title-small--font-weight: 500;
+  --text-body-large: 1rem;
+  --text-body-large--line-height: 1.5rem;
+  --text-body-large--letter-spacing: 0.03125rem;
+  --text-body-medium: 0.875rem;
+  --text-body-medium--line-height: 1.25rem;
+  --text-body-medium--letter-spacing: 0.015625rem;
+  --text-body-small: 0.75rem;
+  --text-body-small--line-height: 1rem;
+  --text-body-small--letter-spacing: 0.025rem;
+  --text-label-large: 0.875rem;
+  --text-label-large--line-height: 1.25rem;
+  --text-label-large--letter-spacing: 0.00625rem;
+  --text-label-large--font-weight: 500;
+  --text-label-medium: 0.75rem;
+  --text-label-medium--line-height: 1rem;
+  --text-label-medium--letter-spacing: 0.03125rem;
+  --text-label-medium--font-weight: 500;
+  --text-label-small: 0.6875rem;
+  --text-label-small--line-height: 1rem;
+  --text-label-small--letter-spacing: 0.03125rem;
+  --text-label-small--font-weight: 500;
+
+  --shadow-elevation-1: var(--md-sys-elevation-level1);
+  --shadow-elevation-2: var(--md-sys-elevation-level2);
+  --shadow-elevation-3: var(--md-sys-elevation-level3);
+
+  /* Motion easing (ease-emphasized, ease-emphasized-decelerate, …). */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-standard-decelerate: cubic-bezier(0, 0, 0, 1);
+  --ease-standard-accelerate: cubic-bezier(0.3, 0, 1, 1);
+  --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --ease-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+
+  --font-sans: var(--font-roboto-flex), Roboto, ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-roboto-mono), ui-monospace, monospace;
   --font-script: var(--font-signature), cursive;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-feature-settings: "ss01";
+  background: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
 }
 
 button,
@@ -107,59 +258,61 @@ textarea {
   }
 }
 
-/* Gradient-filled text, as in Gemini's greeting. */
-.text-gradient {
-  background: var(--brand-gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-/* The four-point sparkle brand mark, painted with the brand gradient. */
-.brand-mark {
-  display: inline-block;
-  flex-shrink: 0;
-  background: var(--brand-gradient);
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 1.5c.7 5.6 4.9 9.8 10.5 10.5-5.6.7-9.8 4.9-10.5 10.5C11.3 16.9 7.1 12.7 1.5 12 7.1 11.3 11.3 7.1 12 1.5Z'/%3E%3C/svg%3E") center / contain no-repeat;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 1.5c.7 5.6 4.9 9.8 10.5 10.5-5.6.7-9.8 4.9-10.5 10.5C11.3 16.9 7.1 12.7 1.5 12 7.1 11.3 11.3 7.1 12 1.5Z'/%3E%3C/svg%3E") center / contain no-repeat;
-}
-
-/* Soft gradient glow used behind hero areas. */
-.brand-glow {
-  background:
-    radial-gradient(60% 50% at 15% 0%, rgb(66 133 244 / 0.16), transparent 70%),
-    radial-gradient(50% 45% at 85% 10%, rgb(155 114 203 / 0.14), transparent 70%),
-    radial-gradient(45% 40% at 60% 100%, rgb(217 101 112 / 0.1), transparent 70%);
+/*
+ * MD3 state layer: an overlay in the content color at 8% on hover and 10% on focus/press.
+ * Add `state-layer` to any interactive element; it inherits the element's corner shape.
+ */
+@utility state-layer {
+  position: relative;
+  isolation: isolate;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: currentColor;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 150ms var(--ease-standard);
+  }
+  &:hover::before {
+    opacity: 0.08;
+  }
+  &:focus-visible::before,
+  &:active::before {
+    opacity: 0.1;
+  }
 }
 
 .select-chevron {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23747775' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2371787e'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 0.9rem center;
-  background-size: 1.1rem;
-  padding-right: 2.6rem;
+  background-position: right 0.75rem center;
+  background-size: 1.5rem;
+  padding-right: 3rem;
 }
 
 @media (prefers-reduced-motion: no-preference) {
   dialog[open] {
-    animation: dialog-in 0.22s cubic-bezier(0.2, 0, 0, 1);
+    animation: dialog-in 400ms var(--ease-emphasized-decelerate);
   }
   dialog[open]::backdrop {
-    animation: fade-in 0.22s ease-out;
+    animation: fade-in 250ms var(--ease-standard-decelerate);
   }
   .animate-rise {
-    animation: rise-in 0.35s cubic-bezier(0.2, 0, 0, 1) both;
+    animation: rise-in 400ms var(--ease-emphasized-decelerate) both;
   }
   .animate-drawer {
-    animation: drawer-in 0.25s cubic-bezier(0.2, 0, 0, 1);
+    animation: drawer-in 400ms var(--ease-emphasized-decelerate);
   }
 }
 
 @keyframes dialog-in {
   from {
     opacity: 0;
-    transform: translateY(16px) scale(0.98);
+    transform: translateY(24px);
   }
 }
 
@@ -172,7 +325,7 @@ textarea {
 @keyframes rise-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(12px);
   }
 }
 
@@ -185,5 +338,5 @@ textarea {
 /* PDF pages are always rendered on white, regardless of theme. */
 .pdf-page {
   background: #ffffff;
-  box-shadow: var(--page-shadow);
+  box-shadow: var(--md-sys-elevation-level1);
 }

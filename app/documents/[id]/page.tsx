@@ -9,7 +9,7 @@ import { DocumentStatusBadge, RecipientStatusBadge } from "@/components/status-b
 import { NotConnectedButton } from "@/components/preview";
 import { ReissueLinkButton, SendDocumentButton, SignedPdfCard } from "@/components/signing-links";
 import { Avatar } from "@/components/shell/auth-controls";
-import { Button, ButtonLink } from "@/components/ui/button";
+import { Button, ButtonLink, buttonClass } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icons";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Notice } from "@/components/ui/notice";
@@ -69,8 +69,8 @@ export default function DocumentDetailPage() {
     return (
       <AppShell>
         <div className="space-y-4">
-          <div className="h-10 w-2/3 animate-pulse rounded-2xl bg-surface-muted" />
-          <div className="h-64 animate-pulse rounded-3xl bg-surface-muted" />
+          <div className="h-10 w-2/3 animate-pulse rounded-lg bg-surface-container-high" />
+          <div className="h-64 animate-pulse rounded-md bg-surface-container-high" />
         </div>
       </AppShell>
     );
@@ -79,7 +79,7 @@ export default function DocumentDetailPage() {
     return (
       <AppShell>
         <Notice tone="warning" title={t("notFound.title")}>{t("documents.notFound")}</Notice>
-        <Link href="/documents" className="mt-4 inline-flex text-sm font-medium text-accent underline-offset-4 hover:underline">← {t("common.back")}</Link>
+        <Link href="/documents" className={buttonClass("ghost", "md", "mt-4")}><Icon name="back" />{t("common.back")}</Link>
       </AppShell>
     );
   }
@@ -125,8 +125,8 @@ export default function DocumentDetailPage() {
 
   return (
     <AppShell>
-      <Link href="/documents" className="mb-4 inline-flex items-center gap-1.5 rounded-full py-1.5 pr-3 pl-1 text-sm text-muted hover:text-foreground">
-        <Icon name="back" className="size-[18px]" />
+      <Link href="/documents" className={buttonClass("ghost", "md", "mb-4 -ml-3")}>
+        <Icon name="back" />
         {t("common.back")}
       </Link>
       <PageHeader
@@ -165,26 +165,26 @@ export default function DocumentDetailPage() {
           <Card className="p-5 sm:p-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <DocumentStatusBadge status={document.status} />
-              <span className="text-sm text-muted">{t("documents.version", { version: document.version })}</span>
+              <span className="text-body-medium text-on-surface-variant">{t("documents.version", { version: document.version })}</span>
             </div>
             {document.recipients.length > 0 && document.status !== "draft" && (
               <div className="mt-5">
-                <p className="text-xs text-muted">
+                <p className="text-body-small text-on-surface-variant">
                   {signedCount} / {document.recipients.length} {t("recipientStatus.signed").toLocaleLowerCase()}
                 </p>
-                <div className="mt-2 h-2 overflow-hidden rounded-full bg-surface-muted">
+                <div className="mt-2 h-1 overflow-hidden rounded-full bg-secondary-container" role="progressbar" aria-valuemin={0} aria-valuemax={document.recipients.length} aria-valuenow={signedCount}>
                   <div
-                    className="h-full rounded-full transition-[width] duration-500"
-                    style={{ width: `${(signedCount / document.recipients.length) * 100}%`, background: "var(--brand-gradient)" }}
+                    className="h-full rounded-full bg-primary transition-[width] duration-500 ease-emphasized"
+                    style={{ width: `${(signedCount / document.recipients.length) * 100}%` }}
                   />
                 </div>
               </div>
             )}
             <dl className="mt-5 grid grid-cols-2 gap-2">
               {facts.map((fact) => (
-                <div key={fact.label} className={fact.mono ? "col-span-2 rounded-2xl bg-surface-muted px-4 py-3" : "rounded-2xl bg-surface-muted px-4 py-3"}>
-                  <dt className="text-xs text-muted">{fact.label}</dt>
-                  <dd className={fact.mono && document.finalSha256 ? "mt-1 break-all font-mono text-xs" : "mt-1 break-words text-sm font-medium"}>{fact.value}</dd>
+                <div key={fact.label} className={fact.mono ? "col-span-2 rounded-lg bg-surface-container-high px-4 py-3" : "rounded-lg bg-surface-container-high px-4 py-3"}>
+                  <dt className="text-body-small text-on-surface-variant">{fact.label}</dt>
+                  <dd className={fact.mono && document.finalSha256 ? "mt-1 break-all font-mono text-body-small" : "mt-1 break-words text-title-small"}>{fact.value}</dd>
                 </div>
               ))}
             </dl>
@@ -194,13 +194,13 @@ export default function DocumentDetailPage() {
             <CardHeader title={t("documents.recipients")} />
             <ul className="space-y-2 px-3 pb-3 sm:px-4 sm:pb-4">
               {document.recipients.map((recipient) => (
-                <li key={recipient.id} className="flex flex-col gap-3 rounded-2xl bg-surface-muted p-3 sm:flex-row sm:items-center sm:p-4">
+                <li key={recipient.id} className="flex flex-col gap-3 rounded-lg bg-surface-container-high p-3 sm:flex-row sm:items-center sm:p-4">
                   <div className="flex min-w-0 flex-1 items-center gap-3">
                     <Avatar name={recipient.name} className="size-10" />
                     <div className="min-w-0">
-                      <p className="truncate font-medium">{recipient.name}</p>
-                      <p className="truncate text-sm text-muted">{recipient.email}</p>
-                      <p className="text-xs text-muted">{recipient.role} · {t("documents.signingOrder", { order: recipient.order })}</p>
+                      <p className="truncate text-body-large">{recipient.name}</p>
+                      <p className="truncate text-body-medium text-on-surface-variant">{recipient.email}</p>
+                      <p className="text-body-small text-on-surface-variant">{recipient.role} · {t("documents.signingOrder", { order: recipient.order })}</p>
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-2 pl-13 sm:justify-end sm:pl-0">
@@ -222,7 +222,7 @@ export default function DocumentDetailPage() {
                 <a
                   href={pdfUrl}
                   download={document.originalFileName ?? "sample-agreement.pdf"}
-                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-accent hover:bg-accent-soft/50"
+                  className={buttonClass("ghost", "sm")}
                 >
                   <Icon name="download" className="size-4" />
                   <span className="hidden sm:inline">{t("documents.downloadOriginal")}</span>
@@ -231,9 +231,9 @@ export default function DocumentDetailPage() {
             />
             <div className="px-3 pb-3 sm:px-4 sm:pb-4">
               {pdfUrl ? (
-                <iframe title={document.originalFileName ?? document.title} src={pdfUrl} className="h-[70vh] min-h-96 w-full rounded-2xl border border-border/70 bg-white" />
+                <iframe title={document.originalFileName ?? document.title} src={pdfUrl} className="h-[70vh] min-h-96 w-full rounded-sm border border-outline-variant bg-white" />
               ) : !pdfError ? (
-                <div className="h-96 animate-pulse rounded-2xl bg-surface-muted" />
+                <div className="h-96 animate-pulse rounded-lg bg-surface-container-high" />
               ) : null}
             </div>
           </Card>
@@ -241,8 +241,8 @@ export default function DocumentDetailPage() {
 
         <aside className="space-y-6">
           <Card className="p-5 sm:p-6">
-            <h2 className="text-base font-medium">{t("documents.details")}</h2>
-            <dl className="mt-4 divide-y divide-border/60 text-sm">
+            <h2 className="text-title-medium">{t("documents.details")}</h2>
+            <dl className="mt-4 divide-y divide-outline-variant text-body-medium">
               {[
                 [t("documents.delivery"), document.recipients.some((recipient) => recipient.delivery === "link") ? t("documents.deliveryLink") : t("documents.deliveryEmail")],
                 [t("editor.fields"), String(document.fields?.length ?? 0)],
@@ -251,7 +251,7 @@ export default function DocumentDetailPage() {
                 ["Original file", document.originalFileName ?? "Sample PDF"],
               ].map(([label, value]) => (
                 <div key={label} className="flex justify-between gap-4 py-2.5">
-                  <dt className="text-muted">{label}</dt>
+                  <dt className="text-on-surface-variant">{label}</dt>
                   <dd className="min-w-0 break-all text-right font-medium">{value}</dd>
                 </div>
               ))}
@@ -262,7 +262,7 @@ export default function DocumentDetailPage() {
           ) : document.status === "completed" && (
             <Card className="p-5 sm:p-6">
               <p className="font-medium">{t("documents.downloadFinal")}</p>
-              <p className="mt-2 text-sm text-muted">A signed final PDF is not available in the local workspace.</p>
+              <p className="mt-2 text-body-medium text-on-surface-variant">A signed final PDF is not available in the local workspace.</p>
             </Card>
           )}
         </aside>

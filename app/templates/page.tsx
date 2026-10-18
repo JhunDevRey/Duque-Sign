@@ -24,24 +24,24 @@ export default function TemplatesPage() {
           <Card key={template.id} className="p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-lg font-medium">{template.name}</h2>
-                <p className="mt-1 text-xs text-muted">{formatDateTime(template.updatedAt)}</p>
+                <h2 className="text-title-large">{template.name}</h2>
+                <p className="mt-1 text-body-small text-on-surface-variant">{formatDateTime(template.updatedAt)}</p>
               </div>
-              <span className="rounded-full bg-surface-muted px-2.5 py-1 text-xs text-muted">{template.fieldCount} {t("templates.fields")}</span>
+              <span className="inline-flex h-6 shrink-0 items-center rounded-sm bg-surface-container-highest px-2 text-label-medium text-on-surface-variant">{template.fieldCount} {t("templates.fields")}</span>
             </div>
 
-            <div className="mt-4 space-y-3 text-sm">
+            <div className="mt-4 space-y-3 text-body-medium">
               <div>
                 <p className="font-medium">{t("templates.roles")}</p>
                 <div className="mt-1 flex flex-wrap gap-2">
                   {template.roles.map((role) => (
-                    <span key={role} className="rounded-full bg-surface-muted px-2 py-1 text-xs text-muted">{role}</span>
+                    <span key={role} className="inline-flex h-8 items-center rounded-sm border border-outline-variant px-3 text-label-large text-on-surface-variant">{role}</span>
                   ))}
                 </div>
               </div>
               <div>
                 <p className="font-medium">{t("templates.variables")}</p>
-                <p className="mt-1 text-muted">{template.variables.join(", ") || "—"}</p>
+                <p className="mt-1 text-on-surface-variant">{template.variables.join(", ") || "—"}</p>
               </div>
             </div>
 

@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState, type MouseEvent, type Pointer
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import { AppShell } from "@/components/app-shell";
 import { useLocalWorkspace } from "@/components/local-workspace";
-import { Button, IconButton } from "@/components/ui/button";
+import { Button, IconButton, buttonClass } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icons";
 import { Card } from "@/components/ui/card";
 import { Checkbox, Field as FormField, Input, Select } from "@/components/ui/form";
@@ -64,7 +64,7 @@ export default function DocumentFieldsPage() {
   const { documents, updateDocument, ready, organizationId, refresh } = useLocalWorkspace();
   const document = documents.find((entry) => entry.id === id);
 
-  if (!ready) return <AppShell><p className="text-sm text-muted">{t("common.loading")}</p></AppShell>;
+  if (!ready) return <AppShell><p className="text-body-medium text-on-surface-variant">{t("common.loading")}</p></AppShell>;
   if (!document) {
     return <AppShell><Notice tone="warning" title={t("notFound.title")}>{t("documents.notFound")}</Notice></AppShell>;
   }
@@ -72,7 +72,7 @@ export default function DocumentFieldsPage() {
     return (
       <AppShell>
         <Notice tone="warning" title={t("editor.lockedTitle")}>{t("editor.lockedMessage")}</Notice>
-        <Link href={`/documents/${document.id}`} className="mt-4 inline-flex text-sm font-medium text-accent underline-offset-4 hover:underline">← {t("common.back")}</Link>
+        <Link href={`/documents/${document.id}`} className={buttonClass("ghost", "md", "mt-4")}><Icon name="back" />{t("common.back")}</Link>
       </AppShell>
     );
   }
@@ -379,8 +379,8 @@ function DocumentFieldsEditor({
 
   return (
     <AppShell>
-      <Link href={`/documents/${document.id}`} className="mb-4 inline-flex items-center gap-1.5 rounded-full py-1.5 pr-3 pl-1 text-sm text-muted hover:text-foreground">
-        <Icon name="back" className="size-[18px]" />
+      <Link href={`/documents/${document.id}`} className={buttonClass("ghost", "md", "mb-4 -ml-3")}>
+        <Icon name="back" />
         {t("common.back")}
       </Link>
       <PageHeader
@@ -404,7 +404,7 @@ function DocumentFieldsEditor({
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem]">
         <Card className="min-w-0 p-2 sm:p-4">
           <div className="mb-2 flex items-center justify-between gap-3 pl-3 sm:mb-3">
-            <p className="text-sm font-medium">{t("common.pageOf", { page: pageNumber, total: pdf?.numPages ?? document.pageCount })}</p>
+            <p className="text-title-small">{t("common.pageOf", { page: pageNumber, total: pdf?.numPages ?? document.pageCount })}</p>
             <div className="flex gap-1">
               <IconButton label={t("common.pagePrevious")} disabled={pageNumber <= 1} onClick={() => setPageNumber((page) => page - 1)}>
                 <Icon name="chevronLeft" />
@@ -414,11 +414,11 @@ function DocumentFieldsEditor({
               </IconButton>
             </div>
           </div>
-          <div ref={containerRef} className="overflow-auto rounded-2xl bg-surface-muted p-2 sm:p-4">
+          <div ref={containerRef} className="overflow-auto rounded-sm bg-surface-container-highest p-2 sm:p-4">
             {loading ? (
-              <div className="mx-auto h-[60vh] max-w-xl animate-pulse rounded-lg bg-surface-strong" />
+              <div className="mx-auto h-[60vh] max-w-xl animate-pulse rounded-sm bg-surface-container-highest" />
             ) : error && !pdf ? (
-              <p className="p-6 text-sm text-danger">{error}</p>
+              <p className="p-6 text-body-medium text-error">{error}</p>
             ) : (
               <div
                 className="pdf-page relative mx-auto cursor-crosshair"
@@ -453,10 +453,10 @@ function DocumentFieldsEditor({
                       onPointerUp={() => { dragRef.current = null; }}
                       onPointerCancel={() => { dragRef.current = null; }}
                       className={cn(
-                        "absolute overflow-hidden rounded-md border-2 px-1 text-left text-[9px] leading-tight shadow-sm sm:text-[10px]",
+                        "absolute overflow-hidden rounded-xs border-2 px-1 text-left text-[9px] leading-tight sm:text-[10px]",
                         selectedFieldId === field.id
-                          ? "z-10 border-[#0b57d0] bg-[#d3e3fd]/95 text-[#041e49] ring-4 ring-[#0b57d0]/20"
-                          : "border-[#0b57d0]/55 bg-white/95 text-[#1f1f1f]",
+                          ? "z-10 border-pdf-field bg-pdf-field-container/95 text-on-pdf-field-container ring-4 ring-pdf-field/20"
+                          : "border-pdf-field/55 bg-white/95 text-pdf-ink",
                       )}
                       style={{
                         left: `${field.x * 100}%`,
@@ -468,7 +468,7 @@ function DocumentFieldsEditor({
                       }}
                     >
                       <span className="block truncate font-medium">{fieldLabel(field)}</span>
-                      <span className="block truncate text-[#5e6268]">{recipient?.name}</span>
+                      <span className="block truncate opacity-70">{recipient?.name}</span>
                     </button>
                   );
                 })}
@@ -479,7 +479,7 @@ function DocumentFieldsEditor({
 
         <aside className="space-y-5">
           <Card className="space-y-4 p-5">
-            <h2 className="text-base font-medium">{t("editor.fields")}</h2>
+            <h2 className="text-title-medium">{t("editor.fields")}</h2>
             <FormField label={t("editor.assignTo")} htmlFor="field-recipient">
               <Select id="field-recipient" value={activeRecipientId} onChange={(event) => setActiveRecipientId(event.target.value)}>
                 {document.recipients.map((recipient) => (
@@ -488,7 +488,7 @@ function DocumentFieldsEditor({
               </Select>
             </FormField>
             <fieldset className="space-y-2">
-              <legend className="mb-2 px-1 text-sm font-medium">{t("editor.fields")}</legend>
+              <legend className="mb-2 px-1 text-title-small">{t("editor.fields")}</legend>
               <div className="flex flex-wrap gap-2">
                 {FIELD_TYPES.map((type) => (
                   <button
@@ -497,41 +497,41 @@ function DocumentFieldsEditor({
                     aria-pressed={activeType === type}
                     onClick={() => setActiveType(type)}
                     className={cn(
-                      "inline-flex h-9 items-center gap-1.5 rounded-xl border px-3 text-sm font-medium transition-colors",
+                      "state-layer inline-flex h-8 items-center gap-2 rounded-sm border text-label-large transition-colors duration-200",
                       activeType === type
-                        ? "border-transparent bg-accent-soft text-accent-soft-foreground"
-                        : "border-border text-muted hover:bg-surface-muted hover:text-foreground",
+                        ? "border-transparent bg-secondary-container pr-4 pl-2 text-on-secondary-container"
+                        : "border-outline px-4 text-on-surface-variant",
                     )}
                   >
-                    {activeType === type && <Icon name="check" className="size-4" />}
+                    {activeType === type && <Icon name="check" className="size-[18px]" />}
                     {t(`fieldTypes.${type}`)}
                   </button>
                 ))}
               </div>
             </fieldset>
-            <p className="text-xs text-muted">{t("editor.clickToPlace")}</p>
+            <p className="text-body-small text-on-surface-variant">{t("editor.clickToPlace")}</p>
             <div className="max-h-80 space-y-2 overflow-auto">
               {fields.length ? fields.map((field) => {
                 const recipient = document.recipients.find((entry) => entry.id === field.recipientId);
                 return (
-                  <div key={field.id} className={cn("flex items-start gap-2 rounded-2xl p-3 transition-colors", selectedFieldId === field.id ? "bg-accent-soft/70" : "bg-surface-muted")}>
+                  <div key={field.id} className={cn("flex items-start gap-2 rounded-md p-3 transition-colors duration-200", selectedFieldId === field.id ? "bg-secondary-container text-on-secondary-container" : "bg-surface-container")}>
                     <button type="button" className="min-w-0 flex-1 text-left" onClick={() => { setSelectedFieldId(field.id); setPageNumber(field.page); }}>
-                      <span className="block truncate text-sm font-medium">{fieldLabel(field)}</span>
-                      <span className="text-xs text-muted">{recipient?.name} · {t("common.page", { page: field.page })} · {field.source === "anchor" ? t("editor.fromAnchor") : t("editor.fields")}</span>
+                      <span className="block truncate text-title-small">{fieldLabel(field)}</span>
+                      <span className="text-body-small text-on-surface-variant">{recipient?.name} · {t("common.page", { page: field.page })} · {field.source === "anchor" ? t("editor.fromAnchor") : t("editor.fields")}</span>
                     </button>
-                    <IconButton label={t("common.delete")} className="-my-1 size-9 hover:text-danger" onClick={() => setFields((current) => current.filter((item) => item.id !== field.id))}>
+                    <IconButton label={t("common.delete")} className="-my-1 hover:text-error" onClick={() => setFields((current) => current.filter((item) => item.id !== field.id))}>
                       <Icon name="trash" className="size-[18px]" />
                     </IconButton>
                   </div>
                 );
-              }) : <p className="text-sm text-muted">{t("editor.noSelection")}</p>}
+              }) : <p className="text-body-medium text-on-surface-variant">{t("editor.noSelection")}</p>}
             </div>
-            <p className="text-xs text-muted">{t("editor.fieldCount", { count: fields.length })}</p>
+            <p className="text-body-small text-on-surface-variant">{t("editor.fieldCount", { count: fields.length })}</p>
           </Card>
 
           {selectedField && (
             <Card className="space-y-4 p-5">
-              <h2 className="text-base font-medium">{t("editor.selectedField")}</h2>
+              <h2 className="text-title-medium">{t("editor.selectedField")}</h2>
               <FormField label={t("editor.label")} htmlFor="field-label">
                 <Input
                   id="field-label"
@@ -555,7 +555,7 @@ function DocumentFieldsEditor({
                 checked={selectedField.required}
                 onChange={(event) => setFields((current) => current.map((field) => field.id === selectedField.id ? { ...field, required: event.target.checked } : field))}
               />
-              <p className="text-xs text-muted">{selectedField.source === "anchor" ? t("editor.fromAnchor") : t("editor.manualFieldHint")}</p>
+              <p className="text-body-small text-on-surface-variant">{selectedField.source === "anchor" ? t("editor.fromAnchor") : t("editor.manualFieldHint")}</p>
             </Card>
           )}
         </aside>

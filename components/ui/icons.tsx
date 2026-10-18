@@ -62,7 +62,17 @@ export function Icon({
   );
 }
 
-/** The gradient sparkle brand mark. */
+/** The Duque Sign mark: a signature stroke on a primary-colored tile. */
 export function BrandMark({ className }: { className?: string }) {
-  return <span aria-hidden="true" className={cn("brand-mark size-6", className)} />;
+  return (
+    <span
+      aria-hidden="true"
+      className={cn("inline-flex size-8 shrink-0 items-center justify-center rounded-sm bg-primary text-on-primary", className)}
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="size-[68%]">
+        <path d="M4 15c2-5 4-8 5.5-8 1.8 0-.6 8 1.2 8 1.3 0 2.2-3.5 3.6-3.5.9 0 .5 2.6 1.5 2.6.8 0 1.5-.8 4.2-.8" />
+        <path d="M4 19h16" />
+      </svg>
+    </span>
+  );
 }

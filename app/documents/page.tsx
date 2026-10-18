@@ -59,7 +59,7 @@ export default function DocumentsPage() {
         subtitle={t("documents.subtitle")}
         actions={
           <ButtonLink href="/documents/new" variant="primary">
-            <Icon name="plus" className="size-[18px]" />
+            <Icon name="plus" />
             {t("nav.newDocument")}
           </ButtonLink>
         }
@@ -68,14 +68,14 @@ export default function DocumentsPage() {
       {error && <Notice tone="danger" className="mb-4">{error}</Notice>}
 
       <div className="relative">
-        <Icon name="search" className="pointer-events-none absolute top-1/2 left-5 -translate-y-1/2 text-muted" />
+        <Icon name="search" className="pointer-events-none absolute top-1/2 left-4 size-6 -translate-y-1/2 text-on-surface-variant" />
         <input
           type="search"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder={t("documents.searchPlaceholder")}
           aria-label={t("documents.searchPlaceholder")}
-          className="h-14 w-full rounded-full border border-transparent bg-surface-muted pr-5 pl-14 text-base text-foreground transition-[background-color,border-color,box-shadow] placeholder:text-muted hover:bg-surface-strong focus:border-accent focus:bg-surface focus:outline-none focus:ring-4 focus:ring-accent/15"
+          className="h-14 w-full rounded-full bg-surface-container-high pr-5 pl-14 text-body-large text-on-surface transition-[background-color,box-shadow] duration-200 ease-standard placeholder:text-on-surface-variant hover:bg-surface-container-highest focus:bg-surface-container-highest focus:shadow-elevation-1 focus:outline-none"
         />
       </div>
 
@@ -91,13 +91,13 @@ export default function DocumentsPage() {
                 aria-pressed={active}
                 onClick={() => setStatus(item)}
                 className={cn(
-                  "inline-flex h-9 items-center gap-1.5 rounded-xl border px-3.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+                  "state-layer inline-flex h-8 items-center gap-2 rounded-sm border text-label-large transition-colors duration-200 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-secondary",
                   active
-                    ? "border-transparent bg-accent-soft text-accent-soft-foreground"
-                    : "border-border text-muted hover:bg-surface-muted hover:text-foreground",
+                    ? "border-transparent bg-secondary-container pr-4 pl-2 text-on-secondary-container"
+                    : "border-outline px-4 text-on-surface-variant",
                 )}
               >
-                {active && <Icon name="check" className="size-4" />}
+                {active && <Icon name="check" className="size-[18px]" />}
                 {label}
               </button>
             );
@@ -107,22 +107,24 @@ export default function DocumentsPage() {
 
       {!ready ? (
         <div className="mt-6 space-y-2">
-          {[0, 1, 2, 3].map((item) => <div key={item} className="h-20 animate-pulse rounded-3xl bg-surface-muted" />)}
+          {[0, 1, 2, 3].map((item) => <div key={item} className="h-20 animate-pulse rounded-md bg-surface-container-high" />)}
         </div>
       ) : filteredDocuments.length === 0 ? (
         <Card className="mt-6 flex flex-col items-center px-6 py-14 text-center">
-          <span className="brand-mark size-10" aria-hidden="true" />
-          <p className="mt-4 font-medium">{t("documents.empty")}</p>
+          <span aria-hidden="true" className="inline-flex size-12 items-center justify-center rounded-lg bg-secondary-container text-on-secondary-container">
+            <Icon name="document" className="size-6" />
+          </span>
+          <p className="mt-4 text-title-medium">{t("documents.empty")}</p>
           {documents.length === 0 && (
             <ButtonLink href="/documents/new" variant="tonal" size="sm" className="mt-4">
-              <Icon name="plus" className="size-4" />
+              <Icon name="plus" />
               {t("nav.newDocument")}
             </ButtonLink>
           )}
         </Card>
       ) : (
         <Card className="mt-6 overflow-hidden">
-          <div className="hidden grid-cols-[minmax(0,2fr)_minmax(0,1.6fr)_10rem_8rem] gap-4 border-b border-border/70 px-6 py-3 text-xs font-medium text-muted xl:grid">
+          <div className="hidden grid-cols-[minmax(0,2fr)_minmax(0,1.6fr)_10rem_8rem] gap-4 border-b border-outline-variant px-6 py-3 text-label-medium text-on-surface-variant xl:grid">
             <span>{t("documents.columnTitle")}</span>
             <span>{t("documents.columnRecipients")}</span>
             <span>{t("documents.columnUpdated")}</span>
@@ -130,32 +132,32 @@ export default function DocumentsPage() {
           </div>
           <ul className="p-2 xl:p-0">
             {filteredDocuments.map((document) => (
-              <li key={document.id} className="xl:border-b xl:border-border/50 xl:last:border-0">
+              <li key={document.id} className="xl:border-b xl:border-outline-variant xl:last:border-0">
                 <Link
                   href={`/documents/${document.id}`}
-                  className="flex flex-col gap-3 rounded-2xl p-3 transition-colors hover:bg-surface-muted xl:grid xl:grid-cols-[minmax(0,2fr)_minmax(0,1.6fr)_10rem_8rem] xl:items-center xl:gap-4 xl:rounded-none xl:px-6 xl:py-4"
+                  className="state-layer flex flex-col gap-3 rounded-md p-3 xl:grid xl:grid-cols-[minmax(0,2fr)_minmax(0,1.6fr)_10rem_8rem] xl:items-center xl:gap-4 xl:rounded-none xl:px-6 xl:py-4"
                 >
                   <div className="flex min-w-0 items-center gap-3">
-                    <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent-soft-foreground">
+                    <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-primary-container text-on-primary-container">
                       <Icon name="document" />
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-medium">{document.title}</p>
-                      <p className="mt-0.5 truncate text-xs text-muted">
+                      <p className="truncate text-body-large">{document.title}</p>
+                      <p className="truncate text-body-medium text-on-surface-variant">
                         {document.externalId ? t("documents.reference", { ref: document.externalId }) : t("documents.version", { version: document.version })}
                       </p>
                     </div>
                     <span className="xl:hidden"><DocumentStatusBadge status={document.status} /></span>
                   </div>
-                  <div className="flex flex-wrap gap-1.5 pl-13 xl:pl-0">
+                  <div className="flex flex-wrap gap-2 pl-14 xl:pl-0">
                     {document.recipients.map((recipient) => (
-                      <span key={recipient.id} className="inline-flex max-w-full items-center gap-2 rounded-full bg-surface-muted py-0.5 pr-0.5 pl-3 text-xs">
+                      <span key={recipient.id} className="inline-flex h-8 max-w-full items-center gap-2 rounded-sm border border-outline-variant pr-1 pl-3 text-label-large">
                         <span className="truncate">{recipient.name}</span>
                         <RecipientStatusBadge status={recipient.status} />
                       </span>
                     ))}
                   </div>
-                  <p className="pl-13 text-xs text-muted xl:pl-0 xl:text-sm">{formatDateTime(document.updatedAt)}</p>
+                  <p className="pl-14 text-body-small text-on-surface-variant xl:pl-0 xl:text-body-medium">{formatDateTime(document.updatedAt)}</p>
                   <span className="hidden justify-self-end xl:block"><DocumentStatusBadge status={document.status} /></span>
                 </Link>
               </li>

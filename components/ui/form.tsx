@@ -1,19 +1,20 @@
 import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
+// MD3 outlined text field: 1dp outline, on-surface outline on hover, 2dp primary outline on focus.
 const control =
-  "w-full rounded-2xl border border-transparent bg-surface-muted px-4 text-sm text-foreground transition-[background-color,border-color,box-shadow] placeholder:text-muted hover:bg-surface-strong focus:border-accent focus:bg-surface focus:outline-none focus:ring-4 focus:ring-accent/15 disabled:opacity-60";
+  "w-full rounded-xs border border-outline bg-transparent px-4 text-body-large text-on-surface transition-[border-color,box-shadow] duration-150 ease-standard placeholder:text-on-surface-variant hover:border-on-surface focus:border-primary focus:shadow-[inset_0_0_0_1px_var(--md-sys-color-primary)] focus:outline-none aria-invalid:border-error disabled:border-on-surface/12 disabled:opacity-38";
 
 export function Input({ className, ...props }: ComponentProps<"input">) {
-  return <input className={cn(control, "h-12", className)} {...props} />;
+  return <input className={cn(control, "h-14", className)} {...props} />;
 }
 
 export function Select({ className, ...props }: ComponentProps<"select">) {
-  return <select className={cn(control, "select-chevron h-12", className)} {...props} />;
+  return <select className={cn(control, "select-chevron h-14", className)} {...props} />;
 }
 
 export function Textarea({ className, ...props }: ComponentProps<"textarea">) {
-  return <textarea className={cn(control, "min-h-28 py-3", className)} {...props} />;
+  return <textarea className={cn(control, "min-h-28 py-4", className)} {...props} />;
 }
 
 export function Field({
@@ -30,20 +31,20 @@ export function Field({
   className?: string;
 }) {
   return (
-    <div className={cn("space-y-2", className)}>
-      <label htmlFor={htmlFor} className="block px-1 text-sm font-medium">
+    <div className={cn("space-y-1.5", className)}>
+      <label htmlFor={htmlFor} className="block text-body-medium text-on-surface-variant">
         {label}
       </label>
       {children}
-      {hint && <p className="px-1 text-xs text-muted">{hint}</p>}
+      {hint && <p className="px-4 text-body-small text-on-surface-variant">{hint}</p>}
     </div>
   );
 }
 
 export function Checkbox({ label, className, ...props }: ComponentProps<"input"> & { label: ReactNode }) {
   return (
-    <label className={cn("flex cursor-pointer items-start gap-3 text-sm", className)}>
-      <input type="checkbox" className="mt-0.5 size-[18px] shrink-0 cursor-pointer rounded accent-accent" {...props} />
+    <label className={cn("flex cursor-pointer items-start gap-3 text-body-medium", className)}>
+      <input type="checkbox" className="mt-px size-[18px] shrink-0 cursor-pointer rounded-xs accent-primary" {...props} />
       <span>{label}</span>
     </label>
   );
