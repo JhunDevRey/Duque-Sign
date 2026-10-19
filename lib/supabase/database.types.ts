@@ -1,4 +1,4 @@
-// Schema snapshot based on supabase/migrations/001_init.sql through 005_recipient_signing.sql.
+// Schema snapshot based on supabase/migrations/001_init.sql through 006_api_keys.sql.
 // Regenerate from the live project with `supabase gen types typescript --project-id <project-ref> --schema public`.
 export type Json =
   | string
@@ -60,6 +60,7 @@ export type Database = {
           final_pdf_sha256: string | null;
           page_count: number;
           external_id: string | null;
+          metadata: Json;
         } & TimestampColumns,
         {
           id?: string;
@@ -77,6 +78,7 @@ export type Database = {
           final_pdf_sha256?: string | null;
           page_count: number;
           external_id?: string | null;
+          metadata?: Json;
           created_at?: string;
           updated_at?: string;
         },
@@ -93,6 +95,7 @@ export type Database = {
           final_pdf_sha256?: string | null;
           page_count?: number;
           external_id?: string | null;
+          metadata?: Json;
           updated_at?: string;
         }
       >;
@@ -254,11 +257,79 @@ export type Database = {
         },
         never
       >;
+      // key_hash is not granted to signed-in users; only the service role can read it.
+      api_keys: TableDefinition<
+        {
+          id: string;
+          organization_id: string;
+          name: string;
+          key_prefix: string;
+          key_hash: string;
+          created_by: string;
+          created_at: string;
+          last_used_at: string | null;
+          revoked_at: string | null;
+        },
+        never,
+        never
+      >;
+      api_idempotency_keys: TableDefinition<
+        {
+          organization_id: string;
+          idempotency_key: string;
+          request_hash: string;
+          response_status: number | null;
+          response_body: Json | null;
+          created_at: string;
+        },
+        never,
+        never
+      >;
     };
     Views: Record<string, never>;
     Functions: {
+      api_authenticate_key: {
+        Args: { p_key_hash: string };
+        Returns: { api_key_id: string; organization_id: string; organization_name: string }[];
+      };
+      api_claim_idempotency: {
+        Args: { p_api_key_id: string; p_idempotency_key: string; p_request_hash: string };
+        Returns: { state: "claimed" | "replay" | "mismatch" | "in_progress"; response_status: number | null; response_body: Json | null }[];
+      };
+      api_complete_idempotency: {
+        Args: { p_api_key_id: string; p_idempotency_key: string; p_response_status: number; p_response_body: Json };
+        Returns: undefined;
+      };
+      api_create_document: {
+        Args: {
+          p_api_key_id: string;
+          p_document_id: string;
+          p_title: string;
+          p_external_id: string | null;
+          p_metadata: Json;
+          p_original_file_name: string;
+          p_original_pdf_path: string;
+          p_page_count: number;
+          p_recipients: Json;
+          p_fields: Json;
+        };
+        Returns: undefined;
+      };
+      api_release_idempotency: { Args: { p_api_key_id: string; p_idempotency_key: string }; Returns: undefined };
+      api_send_document: {
+        Args: { p_api_key_id: string; p_document_id: string; p_token_hashes: Json; p_expires_in_days: number };
+        Returns: {
+          recipient_id: string;
+          status: Database["public"]["Enums"]["recipient_status"];
+          expires_at: string;
+        }[];
+      };
       can_view_profile: { Args: { target_user_id: string }; Returns: boolean };
       cancel_document: { Args: { p_document_id: string }; Returns: undefined };
+      create_api_key: {
+        Args: { p_organization_id: string; p_name: string; p_key_prefix: string; p_key_hash: string };
+        Returns: string;
+      };
       create_organization: {
         Args: { p_name: string };
         Returns: { id: string; name: string; role: Database["public"]["Enums"]["organization_member_role"] }[];
@@ -281,6 +352,7 @@ export type Database = {
       is_organization_member: { Args: { target_organization_id: string }; Returns: boolean };
       is_organization_member_for_storage: { Args: { object_name: string }; Returns: boolean };
       replace_document_fields: { Args: { p_document_id: string; p_fields: Json }; Returns: number };
+      revoke_api_key: { Args: { p_api_key_id: string }; Returns: undefined };
       reissue_signing_link: {
         Args: { p_document_id: string; p_recipient_id: string; p_token_hash: string };
         Returns: undefined;

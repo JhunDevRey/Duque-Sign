@@ -37,6 +37,7 @@ firebase deploy --only firestore:rules
 
 - `docs/MVP_SCOPE.md` — MVP scope and requirements
 - `docs/ARCHITECTURE.md` — architecture and implementation status
+- `docs/integrations/make-com.md` — server-to-server API and the Make.com (Slack approval → send) scenario
 
 ## Preview and feature status
 
@@ -45,5 +46,9 @@ Without Firebase credentials, initial records are sample data and new drafts sta
 With Supabase configured, drafts can be sent: each recipient gets a single-use signing link (`/sign/<token>`, only its SHA-256 is stored) that the sender copies and shares. Recipients sign in signing order on a mobile-friendly page (consent, drawn or typed signatures, initials, dates, text, checkboxes) or decline. When the last recipient signs, the server stamps every value onto the PDF, appends a signing certificate page, stores it in the `signed-pdfs` bucket, and records its SHA-256. Views, signatures, declines, expiry, and completion are written to the audit log with IP and user agent.
 
 Signing requires migrations `004_send_document.sql` and `005_recipient_signing.sql`, and `SUPABASE_SERVICE_ROLE_KEY` in `.env.local` (server-only; signers are not Supabase users). Typed field values use a standard PDF font, so characters outside Western European scripts are replaced with `?` in the final PDF.
+
+## Server-to-server API
+
+Automation such as Make.com uses `/api/v1` with an organization API key (`Authorization: Bearer sk_live_…`). Owners and admins create and revoke keys under **Settings → API keys**; a key is shown once and only its SHA-256 is stored. The API creates drafts from an uploaded PDF (placing fields from anchor tags such as `{{s:Client}}`), sends them and returns signing URLs for the caller to email, reports status, and serves the signed PDF. Create requests accept an `Idempotency-Key` header. It requires migration `006_api_keys.sql` and `SUPABASE_SERVICE_ROLE_KEY`. See `docs/integrations/make-com.md`.
 
 Email delivery and webhook delivery are not implemented. Anchor tags are detected and represented as draft fields; they are not removed from a final PDF. Cloud Storage awaits management approval for billing; Firebase-mode PDF access is limited to the browser where each draft was created. Do not accept real signing traffic until the full workflow is implemented and reviewed.

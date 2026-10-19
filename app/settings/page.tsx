@@ -1,18 +1,19 @@
 import { AppShell } from "@/components/app-shell";
+import { ApiKeysCard } from "@/components/settings/api-keys-card";
 import { NotConnectedButton } from "@/components/preview";
 import { Card } from "@/components/ui/card";
 import { Notice } from "@/components/ui/notice";
 import { PageHeader } from "@/components/ui/page-header";
 import { formatDateTime } from "@/lib/format";
 import { t } from "@/lib/i18n";
-import { sampleApiKeys, sampleMembers, sampleWebhookDeliveries, sampleWebhookEndpoints } from "@/lib/preview/sample-data";
+import { sampleMembers, sampleWebhookDeliveries, sampleWebhookEndpoints } from "@/lib/preview/sample-data";
 
 export default function SettingsPage() {
   return (
     <AppShell>
       <PageHeader title={t("settings.title")} subtitle="Organization settings and integrations" />
-      <Notice tone="warning" className="mb-6" title="Example settings">
-        These organization, member, API key, and webhook values are sample data. Settings changes and integration management are not available yet.
+      <Notice tone="warning" className="mb-6" title="Partly sample data">
+        API keys are live. The organization, member, and webhook values are still sample data; changing them is not available yet.
       </Notice>
 
       <div className="grid gap-6 xl:grid-cols-2">
@@ -44,24 +45,7 @@ export default function SettingsPage() {
           </div>
         </Card>
 
-        <Card className="p-4">
-          <div className="mb-4 flex items-center justify-between text-title-medium">
-            <span>{t("settings.tabApiKeys")}</span>
-            <NotConnectedButton variant="secondary" size="sm">{t("settings.createKey")}</NotConnectedButton>
-          </div>
-          <div className="space-y-3">
-            {sampleApiKeys.map((key) => (
-              <div key={key.id} className="rounded-md bg-surface-container p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="font-medium">{key.name}</p>
-                  <span className="inline-flex h-6 items-center rounded-sm bg-surface-container-highest px-2 text-label-medium text-on-surface-variant">{key.mode}</span>
-                </div>
-                <p className="mt-2 text-body-medium text-on-surface-variant">{key.displayPrefix}</p>
-                <div className="mt-2 text-body-small text-on-surface-variant">{key.scopes.join(", ")}</div>
-              </div>
-            ))}
-          </div>
-        </Card>
+        <ApiKeysCard />
 
         <Card className="p-4">
           <div className="mb-4 flex items-center justify-between text-title-medium">

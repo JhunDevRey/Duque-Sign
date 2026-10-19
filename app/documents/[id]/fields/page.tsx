@@ -15,41 +15,10 @@ import { Notice } from "@/components/ui/notice";
 import { PageHeader } from "@/components/ui/page-header";
 import { isSupabaseClientConfigured } from "@/lib/supabase/client";
 import { FIELD_TYPES, type DocumentSummary, type Field, type FieldType } from "@/lib/domain/types";
+import { constrain, FIELD_SIZES, findAnchors, MAX_FIELDS } from "@/lib/pdf/anchors";
 import { readOriginalPdf } from "@/lib/preview/local-workspace";
 import { SAMPLE_PDF_URL } from "@/lib/preview/sample-data";
 import { t } from "@/lib/i18n";
-
-type AnchorMatch = {
-  type: FieldType;
-  role: string;
-  label: string;
-  page: number;
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-};
-
-const FIELD_SIZES: Record<FieldType, { w: number; h: number }> = {
-  signature: { w: 0.24, h: 0.075 },
-  initials: { w: 0.12, h: 0.055 },
-  date: { w: 0.16, h: 0.05 },
-  text: { w: 0.25, h: 0.06 },
-  checkbox: { w: 0.045, h: 0.045 },
-};
-const MAX_FIELDS = 100;
-
-const ANCHOR_TYPES: Record<string, FieldType> = {
-  s: "signature",
-  i: "initials",
-  d: "date",
-  c: "checkbox",
-  t: "text",
-};
-
-function constrain(value: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, value));
-}
 
 function fieldLabel(field: Field): string {
   if (field.source === "anchor" && field.label) {
@@ -245,44 +214,12 @@ function DocumentFieldsEditor({
     setError(null);
     setNotice(null);
     try {
-      const matches: AnchorMatch[] = [];
       const unmatchedRoles = new Set<string>();
-      const pattern = /\{\{\s*([sidct])\s*:\s*([^{}]+?)\s*\}\}/gi;
-      for (let pageIndex = 1; pageIndex <= pdf.numPages; pageIndex += 1) {
-        const page = await pdf.getPage(pageIndex);
-        const viewport = page.getViewport({ scale: 1 });
-        const textContent = await page.getTextContent();
-        for (const item of textContent.items) {
-          if (!("str" in item) || typeof item.str !== "string" || !item.str.includes("{{")) continue;
-          pattern.lastIndex = 0;
-          let match: RegExpExecArray | null;
-          while ((match = pattern.exec(item.str)) !== null) {
-            const role = match[2].trim();
-            const recipient = document.recipients.find((entry) => entry.role.toLocaleLowerCase() === role.toLocaleLowerCase());
-            if (!recipient) {
-              unmatchedRoles.add(role);
-              continue;
-            }
-            const transform = item.transform;
-            const [baseX, baseY] = viewport.convertToViewportPoint(transform[4], transform[5]);
-            const textWidth = item.width * viewport.scale;
-            const textHeight = item.height * viewport.scale;
-            const top = Math.max(0, baseY - textHeight);
-            const x = Math.max(0, baseX + textWidth * (match.index / Math.max(1, item.str.length)));
-            const size = FIELD_SIZES[ANCHOR_TYPES[match[1].toLocaleLowerCase()]];
-            matches.push({
-              type: ANCHOR_TYPES[match[1].toLocaleLowerCase()],
-              role,
-              label: match[0].trim(),
-              page: pageIndex,
-              x: x / viewport.width,
-              y: top / viewport.height,
-              w: Math.min(0.98, Math.max(size.w, textWidth * (match[0].length / item.str.length) / viewport.width + 0.01)),
-              h: Math.min(0.98, Math.max(size.h, textHeight / viewport.height + 0.015)),
-            });
-          }
-        }
-      }
+      const matches = (await findAnchors(pdf)).filter((match) => {
+        const known = document.recipients.some((entry) => entry.role.toLocaleLowerCase() === match.role.toLocaleLowerCase());
+        if (!known) unmatchedRoles.add(match.role);
+        return known;
+      });
 
       const existingAnchors = new Set(
         fields.filter((field) => field.source === "anchor").map((field) => `${field.page}:${field.label}`),

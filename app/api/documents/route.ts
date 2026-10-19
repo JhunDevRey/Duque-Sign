@@ -1,6 +1,5 @@
-import { PDFDocument } from "pdf-lib";
 import type { Delivery } from "@/lib/domain/types";
-import { MAX_UPLOAD_BYTES, MAX_UPLOAD_PAGES } from "@/lib/config/app";
+import { inspectUploadedPdf } from "@/lib/pdf/validate";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import {
   databaseErrorResponse,
@@ -131,32 +130,16 @@ export async function POST(request: Request) {
     }
     if (externalId !== null && typeof externalId !== "string") return jsonError("External reference must be text.", 400);
     if (typeof externalId === "string" && externalId.trim().length > 120) return jsonError("External reference is too long.", 400);
-    if (!(file instanceof File)) return jsonError("Upload a PDF file.", 400);
-    if (file.size < 1 || file.size > MAX_UPLOAD_BYTES) return jsonError("PDF file size exceeds the allowed limit.", 413);
-    if (file.type !== "application/pdf" && !file.name.toLocaleLowerCase().endsWith(".pdf")) {
-      return jsonError("Only PDF documents are accepted.", 415);
-    }
-
     const recipients = parseRecipients(form.get("recipients"));
     if (!recipients) return jsonError("Recipients are invalid or duplicated.", 400);
     if (!(await isOrganizationMember(supabase, user.uid, organizationId))) return jsonError("Organization not found.", 404);
 
-    const bytes = Buffer.from(await file.arrayBuffer());
-    if (bytes.subarray(0, 5).toString("ascii") !== "%PDF-") return jsonError("The uploaded file is not a valid PDF.", 415);
-    let pageCount: number;
-    try {
-      const pdf = await PDFDocument.load(bytes, { updateMetadata: false });
-      pageCount = pdf.getPageCount();
-    } catch {
-      return jsonError("The PDF is malformed or encrypted and cannot be processed.", 422);
-    }
-    if (pageCount < 1 || pageCount > MAX_UPLOAD_PAGES) {
-      return jsonError(`PDF must contain between 1 and ${MAX_UPLOAD_PAGES} pages.`, 422);
-    }
+    const pdf = await inspectUploadedPdf(file);
+    if (!pdf.ok) return jsonError(pdf.message, pdf.status);
+    const { bytes, pageCount, fileName: safeFileName } = pdf;
 
     const documentId = crypto.randomUUID();
     const storagePath = originalPdfPath(organizationId, documentId, 1);
-    const safeFileName = file.name.replace(/[\u0000-\u001f\u007f]/g, "").slice(0, 255) || "document.pdf";
     const trimmedExternalId = typeof externalId === "string" && externalId.trim() ? externalId.trim() : null;
 
     const { error: uploadError } = await supabase.storage
